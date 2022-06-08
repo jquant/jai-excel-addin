@@ -1,7 +1,5 @@
 import { Component } from "@angular/core";
-import { authenticate, getEnvironments, getDatabaseInfo } from "jai-sdk";
-
-/* global console, Excel */
+import { authenticate, getEnvironments, getDatabaseInfo, setEnvironment } from "jai-sdk";
 
 @Component({
   selector: "app-home",
@@ -12,7 +10,7 @@ export default class AppComponent {
 
   isAuthenticated: boolean = false;
 
-  enviroments = [];
+  environments = [];
 
   async login() {
     try {
@@ -21,8 +19,8 @@ export default class AppComponent {
       }
       authenticate(this.apiKey);
 
-      this.enviroments = await getEnvironments();
-
+      this.environments = await getEnvironments();
+      setEnvironment(null);
       this.isAuthenticated = true;
 
       console.log(await getDatabaseInfo("complete"));
