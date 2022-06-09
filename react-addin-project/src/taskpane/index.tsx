@@ -4,6 +4,7 @@ import { initializeIcons } from "@fluentui/font-icons-mdl2";
 import { ThemeProvider } from "@fluentui/react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import './taskpane.css'
 
 /* global document, Office, module, require */
 
@@ -11,7 +12,7 @@ initializeIcons();
 
 let isOfficeInitialized = false;
 
-const title = "Contoso Task Pane Add-in";
+const title = "JAI";
 
 const render = (Component) => {
   ReactDOM.render(
