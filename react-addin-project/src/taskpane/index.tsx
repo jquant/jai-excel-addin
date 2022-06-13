@@ -3,8 +3,9 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "@fluentui/font-icons-mdl2";
 import { ThemeProvider } from "@fluentui/react";
 import * as React from "react";
-import * as ReactDOM from "react-dom";
-import './taskpane.css'
+import "./taskpane.css";
+import { BrowserRouter } from "react-router-dom";
+import { createRoot } from "react-dom/client";
 
 /* global document, Office, module, require */
 
@@ -15,13 +16,17 @@ let isOfficeInitialized = false;
 const title = "JAI";
 
 const render = (Component) => {
-  ReactDOM.render(
-    <AppContainer>
-      <ThemeProvider>
-        <Component title={title} isOfficeInitialized={isOfficeInitialized} />
-      </ThemeProvider>
-    </AppContainer>,
-    document.getElementById("container")
+  const container = document.getElementById("container");
+  const root = createRoot(container!);
+
+  root.render(
+    <BrowserRouter>
+      <AppContainer>
+        <ThemeProvider>
+          <Component title={title} isOfficeInitialized={isOfficeInitialized} />
+        </ThemeProvider>
+      </AppContainer>
+    </BrowserRouter>
   );
 };
 

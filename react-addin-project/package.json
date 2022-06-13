@@ -32,8 +32,9 @@
     "core-js": "^3.9.1",
     "es6-promise": "^4.2.8",
     "jai-sdk": "^0.44.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-router-dom": "^6.3.0",
     "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
@@ -50,7 +51,7 @@
     "babel-loader": "^8.2.2",
     "copy-webpack-plugin": "^9.0.1",
     "css-loader": "^6.7.1",
-    "eslint": "^7.20.0",
+    "eslint": "^7.32.0",
     "eslint-plugin-office-addins": "^2.0.0",
     "eslint-plugin-react": "^7.28.0",
     "file-loader": "^6.2.0",
