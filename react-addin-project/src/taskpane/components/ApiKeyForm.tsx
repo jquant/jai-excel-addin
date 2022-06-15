@@ -4,12 +4,11 @@ import { CButton, CCol, CForm, CFormInput } from "@coreui/react";
 import { authenticate, getDatabaseInfo, getEnvironments } from "jai-sdk";
 
 function ApiKeyForm() {
-  let isAuthenticated: boolean = false;
-  let invalidApi: boolean = false;
-
-  const [apiKey, setApiKey] = useState("");
-
-  const [validated, setValidated] = useState(false);
+  const [state, setState] = useState({
+    error: null,
+    apiKey: null,
+    validated: false,
+  });
 
   const handleSubmit = async (event) => {
     const form = event.currentTarget;
@@ -20,33 +19,39 @@ function ApiKeyForm() {
       event.stopPropagation();
     }
 
-    setValidated(true);
+    setState({
+      ...state,
+      validated: true,
+    });
+
     await authenticateAsync();
     event.preventDefault();
   };
 
   const authenticateAsync = async () => {
     try {
-      if (!apiKey) {
+      if (!state.apiKey) {
         return;
       }
-      console.log(apiKey);
+      console.log(state.apiKey);
 
-      authenticate(apiKey);
+      authenticate(state.apiKey);
 
       console.log(await getEnvironments());
-
-      isAuthenticated = true;
 
       console.log(await getDatabaseInfo("complete"));
     } catch (error) {
       console.log(error);
-      invalidApi = true;
+
+      setState({
+        ...state,
+        error: error.message,
+      });
     }
   };
 
   return (
-    <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
+    <CForm className={"row p-3"} noValidate validated={state.validated} onSubmit={handleSubmit}>
       <CCol md={12} className={"pb-1"}>
         <CFormInput
           required
@@ -54,11 +59,18 @@ function ApiKeyForm() {
           className={"mb-1"}
           label="Insert your Api Key"
           placeholder="Api Key"
-          onChange={(e) => setApiKey(e.target.value)}
+          onChange={(e) =>
+            setState({
+              ...state,
+              apiKey: e.target.value,
+            })
+          }
           feedbackInvalid="Please, insert an valid Api Key."
           id="apiKey"
         />
       </CCol>
+
+      {state.error && <div color={"red"}>{state.error}</div>}
 
       <CCol md={12}>
         <CButton className="ms-welcome__action" color="dark" variant="outline" type={"submit"}>
