@@ -678,6 +678,16 @@
   resolved "https://registry.yarnpkg.com/@coreui/coreui/-/coreui-4.1.6.tgz#30302468b72da3274811f77dc77c5fd6db35d294"
   integrity sha512-D+pXPTTWHGuNUaGTa+/KgCjGRH9vvdKKGKcYeE7PVwUwHg6xDgCS6TrPRWth76ELzayov6jiSBZ7ROzLkR/PDA==
 
+"@coreui/icons-react@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@coreui/icons-react/-/icons-react-2.0.1.tgz#b5246abb50e8c3d853f70ab43f67a69a94dde804"
+  integrity sha512-532DYj/b+YeSXfvLLK1FoH6uBMCWdNuxzQe+zQF8NQRFT869Zt6VnbLKNwObxZLUMXwwyATbku8Dw4Cdm0eqiQ==
+
+"@coreui/icons@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@coreui/icons/-/icons-2.1.0.tgz#b21641d3d034fdef308c87dc347c8684c408a753"
+  integrity sha512-3yY9J0088TSY403jwJeP5YERH3RLOvxdhOa4VIQsGOX4fuQZiyVUM+vwlzyCSpgAv9NwKPkCor+gc+JJaYf0TA==
+
 "@coreui/react@^4.2.2":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@coreui/react/-/react-4.2.2.tgz#3e042c17ba3eafbfbd5d9b26ffb385be3991d250"

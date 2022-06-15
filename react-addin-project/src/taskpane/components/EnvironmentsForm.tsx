@@ -1,55 +1,93 @@
-// import * as React from "react";
-// import { useState } from "react";
-// import { CButton, CCol, CForm, CFormSelect } from "@coreui/react";
-// import { authenticate, getDatabaseInfo, getEnvironments } from "jai-sdk";
-//
-// export const EnvironmentsForm = () => {
-//   const [validated, setValidated] = useState(false);
-//   const handleSubmit = (event) => {
-//     event.preventDefault();
-//
-//     const form = event.currentTarget;
-//     if (form.checkValidity() === false) {
-//       event.stopPropagation();
-//     }
-//
-//     setValidated(true);
-//   };
-//
-//   const getEnvironmentsAsync = async () => {
-//     try {
-//       if (!this.apiKey) {
-//         return;
-//       }
-//       authenticate(this.apiKey);
-//
-//       this.environments = await getEnvironments();
-//       console.log(this.environments);
-//
-//       isAuthenticated = true;
-//
-//       console.log(await getDatabaseInfo("complete"));
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-//
-//   return (
-//     <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
-//       <CCol md={12}>
-//         <CFormSelect
-//           className={"mb-2"}
-//           label="Select an environment"
-//           placeholder="Environments..."
-//           feedbackInvalid="Please choose an environment."
-//           id="apiKey"
-//         />
-//       </CCol>
-//       <CCol md={12}>
-//         <CButton className="ms-welcome__action" color="dark" variant="outline" type={"submit"}>
-//           Select
-//         </CButton>
-//       </CCol>
-//     </CForm>
-//   );
-// };
+import * as React from "react";
+import { useState } from "react";
+import { CButton, CCol, CForm, CFormSelect } from "@coreui/react";
+import { getDatabaseInfo, getEnvironments } from "jai-sdk";
+
+function EnvironmentsForm() {
+  const [apiError, setApiError] = useState("");
+  const [environment, setEnvironment] = useState("");
+  const [validated, setValidated] = useState(false);
+
+  const handleSubmit = async (event) => {
+    const form = event.currentTarget;
+    setApiError("");
+
+    if (form.checkValidity() === false) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    setValidated(true);
+    event.preventDefault();
+    await setEnvironmentAsync();
+  };
+
+  const setEnvironmentAsync = async () => {
+    try {
+      console.log(await getEnvironments());
+
+      console.log(await getDatabaseInfo("complete"));
+    } catch (error) {
+      console.log(error);
+      setApiError(error.message);
+    }
+  };
+
+  const onApiKeyChange = (e) => {
+    setApiError("");
+    setEnvironment(e.target.value);
+  };
+
+  const options = [
+    "Open this select menu",
+    {
+      value: 0,
+      text: "Angular",
+    },
+    {
+      value: 1,
+      text: "Bootstrap",
+    },
+    {
+      value: 2,
+      text: "React.js",
+    },
+    {
+      value: 3,
+      text: "Vue.js",
+    },
+    {
+      label: "backend",
+      options: [
+        {
+          value: 4,
+          text: "Django",
+        },
+        {
+          value: 5,
+          text: "Laravel",
+        },
+        {
+          value: 6,
+          text: "Node.js",
+        },
+      ],
+    },
+  ];
+
+  return (
+    <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
+      <CCol md={12} className={"pb-1"}>
+        <CFormSelect options={["js", "html"]} />
+        {apiError && <div className={"error-message"}>{apiError}</div>}
+      </CCol>
+      <CCol md={12}>
+        <CButton className="ms-welcome__action" color="dark" variant="outline" type={"submit"}>
+          Access
+        </CButton>
+      </CCol>
+    </CForm>
+  );
+}
+
+export default EnvironmentsForm;
