@@ -1,11 +1,11 @@
 import App from "./components/App";
-import { AppContainer } from "react-hot-loader";
-import { initializeIcons } from "@fluentui/font-icons-mdl2";
-import { ThemeProvider } from "@fluentui/react";
+import {AppContainer} from "react-hot-loader";
+import {initializeIcons} from "@fluentui/font-icons-mdl2";
+import {ThemeProvider} from "@fluentui/react";
 import * as React from "react";
 import "./taskpane.css";
-import { BrowserRouter } from "react-router-dom";
-import { createRoot } from "react-dom/client";
+import {BrowserRouter} from "react-router-dom";
+import {createRoot} from "react-dom/client";
 
 /* global document, Office, module, require */
 

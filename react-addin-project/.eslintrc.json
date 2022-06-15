@@ -3,6 +3,10 @@
     "office-addins"
   ],
   "extends": [
-    "plugin:office-addins/react"
-  ]
+    "plugin:office-addins/react",
+    "prettier"
+  ],
+  "rules": {
+    "no-console": "off"
+  }
 }
