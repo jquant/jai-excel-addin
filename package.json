@@ -23,7 +23,8 @@
     "start:web": "office-addin-debugging start manifest.xml web",
     "stop": "office-addin-debugging stop manifest.xml",
     "validate": "office-addin-manifest validate manifest.xml",
-    "watch": "webpack --mode development --watch"
+    "watch": "webpack --mode development --watch",
+    "postinstall": "sh post-script-mac.sh"
   },
   "dependencies": {
     "@coreui/coreui": "^4.1.5",
@@ -62,7 +63,7 @@
     "less": "^3.9.0",
     "less-loader": "^10.0.1",
     "office-addin-cli": "^1.3.5",
-    "office-addin-debugging": "^4.3.8",
+    "office-addin-debugging": "^4.3.14",
     "office-addin-dev-certs": "^1.7.7",
     "office-addin-lint": "^2.0.0",
     "office-addin-manifest": "^1.7.7",
