@@ -3,7 +3,7 @@ import { useState } from "react";
 import { CButton, CCol, CForm, CFormSelect } from "@coreui/react";
 import { getDatabaseInfo, getEnvironments } from "jai-sdk";
 
-function EnvironmentsForm() {
+function EnvironmentSelection() {
   const [apiError, setApiError] = useState("");
   const [environment, setEnvironment] = useState("");
   const [validated, setValidated] = useState(false);
