@@ -4,7 +4,7 @@ import {initializeIcons} from "@fluentui/font-icons-mdl2";
 import {ThemeProvider} from "@fluentui/react";
 import * as React from "react";
 import "./taskpane.css";
-import {BrowserRouter} from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {createRoot} from "react-dom/client";
 
 /* global document, Office, module, require */
@@ -23,7 +23,9 @@ const render = (Component) => {
     <BrowserRouter>
       <AppContainer>
         <ThemeProvider>
-          <Component title={title} isOfficeInitialized={isOfficeInitialized} />
+          <Routes>
+            <Route path="/" element={<Component title={title} isOfficeInitialized={isOfficeInitialized} />} />
+          </Routes>
         </ThemeProvider>
       </AppContainer>
     </BrowserRouter>
