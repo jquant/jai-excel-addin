@@ -6124,9 +6124,9 @@ office-addin-cli@^1.3.5, office-addin-cli@^1.3.8:
     node-fetch "^2.6.1"
     read-package-json-fast "^2.0.2"
 
-office-addin-debugging@^4.3.8:
+office-addin-debugging@^4.3.14:
   version "4.3.14"
-  resolved "https://registry.npmjs.org/office-addin-debugging/-/office-addin-debugging-4.3.14.tgz"
+  resolved "https://registry.yarnpkg.com/office-addin-debugging/-/office-addin-debugging-4.3.14.tgz#c84134f2ffdac6ca11ea265a1ed237287177b88d"
   integrity sha512-d0cz0CCWN6LaXFp/OlvjsnWN5+NsKXPp0NkPQmcd9rfxV0KnzKnfem+heLXfIiAGb0D4Q7pL4GayMQM0w7JwEg==
   dependencies:
     child_process "^1.0.2"
