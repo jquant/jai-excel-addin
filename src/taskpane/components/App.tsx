@@ -1,7 +1,7 @@
 import * as React from "react";
 import Progress from "./Progress";
 import "@coreui/coreui/dist/css/coreui.min.css";
-import ApiKeyForm from "./ApiKeyForm";
+import ApiKeyForm from "./children/ApiKeyForm";
 
 const logo = require("./../../../assets/logo-filled.png");
 
@@ -11,11 +11,8 @@ export interface AppProps {
 }
 
 export default class App extends React.Component<AppProps> {
-    state = {showApiKeyForm: true};
 
-    constructor(props, context) {
-        super(props, context);
-    }
+    state = { showApiKeyForm: true };
 
     authenticatedCallback() {
         this.setState({
@@ -25,15 +22,18 @@ export default class App extends React.Component<AppProps> {
     }
 
     render() {
-        const {title, isOfficeInitialized} = this.props;
+        const { title, isOfficeInitialized } = this.props;
 
         if (!isOfficeInitialized) {
-            return <Progress title={title} logo={logo} message="Please sideload your addin to see app body."/>;
+            return <Progress title={title} logo={logo} message="Please sideload your addin to see app body." />;
         }
 
         return (
             <div className="ms-welcome">
-                <ApiKeyForm onAuthenticated={this.authenticatedCallback}></ApiKeyForm>
+
+                {this.state.showApiKeyForm &&
+                    <ApiKeyForm onAuthenticated={() => this.authenticatedCallback()}></ApiKeyForm>
+                }
             </div>
         );
     }
