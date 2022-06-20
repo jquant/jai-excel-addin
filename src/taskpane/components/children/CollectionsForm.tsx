@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { CButton, CCol, CForm, CFormSelect } from "@coreui/react";
+import { getDatabaseInfo } from "jai-sdk";
 import DetailedHeader from "../DetailedHeader";
 
 function CollectionsForm(props) {
