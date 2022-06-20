@@ -4,6 +4,8 @@ import "@coreui/coreui/dist/css/coreui.min.css";
 import ApiKeyForm from "./children/ApiKeyForm";
 import EnvironmentSelectionForm from "./children/EnvironmentSelectionForm";
 import CollectionsForm from "./children/CollectionsForm";
+import AuthenticatedHeader from "./AuthenticatedHeader";
+import AnonymousHeader from "./AnonymousHeader";
 
 const logo = require("./../../../assets/logo-filled.png");
 
@@ -48,18 +50,30 @@ export default class App extends React.Component<AppProps> {
 
     return (
       <div className="ms-welcome">
-        {this.state.showApiKeyForm && (
-          <ApiKeyForm onAuthenticated={(apiKey) => this.authenticatedCallback(apiKey)}></ApiKeyForm>
-        )}
+        {(this.state.showApiKeyForm || this.state.showEnvironmentsSelectionForm) && (
+          <React.Fragment>
+            <AnonymousHeader></AnonymousHeader>
 
-        {this.state.showEnvironmentsSelectionForm && (
-          <EnvironmentSelectionForm
-            onEnvironmentSelected={(environment) => this.environmentSelected(environment)}
-          ></EnvironmentSelectionForm>
+            {this.state.showApiKeyForm && (
+              <ApiKeyForm onAuthenticated={(apiKey) => this.authenticatedCallback(apiKey)}></ApiKeyForm>
+            )}
+
+            {this.state.showEnvironmentsSelectionForm && (
+              <EnvironmentSelectionForm
+                onEnvironmentSelected={(environment) => this.environmentSelected(environment)}
+              ></EnvironmentSelectionForm>
+            )}
+          </React.Fragment>
         )}
 
         {this.state.showCollectionsForm && (
-          <CollectionsForm apiKey={this.state.apiKey} selectedEnvironment={this.state.environment}></CollectionsForm>
+          <React.Fragment>
+            <AuthenticatedHeader
+              apiKey={this.state.apiKey}
+              selectedEnvironment={this.state.environment}
+            ></AuthenticatedHeader>
+            <CollectionsForm></CollectionsForm>
+          </React.Fragment>
         )}
       </div>
     );

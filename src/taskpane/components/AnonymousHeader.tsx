@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export default class Header extends React.Component {
+export default class AnonymousHeader extends React.Component {
   render() {
     return (
       <section className="ms-welcome__header ms-bgColor-white ms-u-fadeIn500">

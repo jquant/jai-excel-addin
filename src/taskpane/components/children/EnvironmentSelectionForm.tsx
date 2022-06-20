@@ -1,36 +1,43 @@
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CButton, CCol, CForm, CFormSelect } from "@coreui/react";
 import { getEnvironments, setEnvironment } from "jai-sdk";
-import Header from "../Header";
 
 function EnvironmentSelectionForm(props) {
-
   const [apiError, setApiError] = useState("");
   const [selectedEnvironment, setSelectedEnvironment] = useState("");
   const [validated, setValidated] = useState(false);
   const [environments, setEnvironments] = useState([]);
 
   useEffect(() => {
-    getEnvironments().then(data => {
-      setEnvironments(data);
-    }, e => console.error(e))
+    getEnvironments().then(
+      (data) => {
+        setEnvironments(data);
+        if (data) {
+          setSelectedEnvironment(data[0].name);
+        }
+      },
+      (e) => setApiError(e.message)
+    );
   }, []);
 
-  const handleSubmit = async (event) => {
-    const form = event.currentTarget;
-    setApiError("");
+  const handleSubmit = (event) => {
+    try {
+      setApiError("");
+      event.preventDefault();
 
-    event.preventDefault();
+      const form = event.currentTarget;
+      if (form.checkValidity() === false) {
+        event.stopPropagation();
+      }
 
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
+      setValidated(true);
+
+      setEnvironment(selectedEnvironment);
+      props.onEnvironmentSelected(selectedEnvironment);
+    } catch (e) {
+      setApiError(e.message);
     }
-
-    setValidated(true);
-
-    setEnvironment(selectedEnvironment);
-    props.onEnvironmentSelected(selectedEnvironment);
   };
 
   const onSelectChange = (e) => {
@@ -40,25 +47,27 @@ function EnvironmentSelectionForm(props) {
 
   return (
     <div>
-      <Header></Header>
       <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
         <CCol md={12} className={"pb-1"}>
-
-          {environments &&
+          {environments && (
             <CFormSelect
-              options={environments.map(({ key, id, name }) => ({ value: (key || id), label: name }))}
+              options={environments.map(({ name }) => ({ value: name, label: name }))}
               placeholder="Select an Environment"
               onChange={onSelectChange}
             />
-          }
+          )}
 
-          {apiError &&
-            <div className={"error-message"}>{apiError}</div>
-          }
+          {apiError && <div className={"error-message"}>{apiError}</div>}
         </CCol>
 
         <CCol md={12}>
-          <CButton disabled={!environments} className="ms-welcome__action" color="dark" variant="outline" type={"submit"}>
+          <CButton
+            disabled={!environments}
+            className="ms-welcome__action"
+            color="dark"
+            variant="outline"
+            type={"submit"}
+          >
             Select
           </CButton>
         </CCol>

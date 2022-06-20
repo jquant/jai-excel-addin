@@ -2,7 +2,6 @@ import * as React from "react";
 import { useState } from "react";
 import { CButton, CCol, CForm, CFormInput } from "@coreui/react";
 import { authenticate } from "jai-sdk";
-import Header from "../Header";
 
 function ApiKeyForm(props) {
   const [apiError, setApiError] = useState("");
@@ -45,7 +44,6 @@ function ApiKeyForm(props) {
 
   return (
     <div className="ms-welcome">
-      <Header></Header>
       <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
         <CCol md={12} className={"pb-1"}>
           <CFormInput
