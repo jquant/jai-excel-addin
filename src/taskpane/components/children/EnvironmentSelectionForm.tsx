@@ -44,9 +44,13 @@ function EnvironmentSelectionForm(props) {
   const setEnvironmentAsync = async () => {
     try {
       await api.setEnvironment(selectedEnvironment);
-      props.onEnvironmentSelected();
+
+      let environment = environments.find((x) => x.id == selectedEnvironment);
+
+      props.onEnvironmentSelected(environment.name);
     } catch (error) {
       setApiError(error.message);
+      setValidated(false);
     }
   };
 
@@ -62,7 +66,7 @@ function EnvironmentSelectionForm(props) {
         <CCol md={12} className={"pb-1"}>
           <CFormSelect
             options={environments.map(({ id, name }) => ({ value: id, label: name }))}
-            placeholder="Select an Environment"
+            label="Select an Environment"
             onChange={onSelectChange}
           />
 
