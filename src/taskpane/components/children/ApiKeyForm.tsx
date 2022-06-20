@@ -8,7 +8,7 @@ const logo = require("./../../../../assets/logo-filled.png");
 
 function ApiKeyForm(props) {
   const [apiError, setApiError] = useState("");
-  const [apiKey, setApiKey] = useState("49cba5d1e46d4bebb1061fa205135069");
+  const [apiKey, setApiKey] = useState("");
   const [validated, setValidated] = useState(false);
 
   const handleSubmit = async (event) => {

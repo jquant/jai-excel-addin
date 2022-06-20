@@ -24,14 +24,12 @@ export default class App extends React.Component<AppProps> {
       ...this.state,
       showApiKeyForm: false,
       showEnvironmentsSelectionForm: true,
-      showCollectionsForm: false,
     });
   }
 
   environmentSelected() {
     this.setState({
       ...this.state,
-      showApiKeyForm: false,
       showEnvironmentsSelectionForm: false,
       showCollectionsForm: true,
     });
@@ -46,13 +44,16 @@ export default class App extends React.Component<AppProps> {
 
     return (
       <div className="ms-welcome">
-        {this.state.showApiKeyForm && <ApiKeyForm onAuthenticated={() => this.authenticatedCallback()}></ApiKeyForm>}
+        {this.state.showApiKeyForm &&
+          <ApiKeyForm onAuthenticated={() => this.authenticatedCallback()}></ApiKeyForm>
+        }
 
         {this.state.showEnvironmentsSelectionForm && (
           <EnvironmentSelectionForm onEnvironmentSelected={() => this.environmentSelected()}></EnvironmentSelectionForm>
         )}
 
         {this.state.showCollectionsForm && <CollectionsForm></CollectionsForm>}
+
       </div>
     );
   }
