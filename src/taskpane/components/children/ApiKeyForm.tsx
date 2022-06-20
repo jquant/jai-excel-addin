@@ -4,8 +4,6 @@ import { CButton, CCol, CForm, CFormInput } from "@coreui/react";
 import { authenticate } from "jai-sdk";
 import Header from "../Header";
 
-const logo = require("./../../../../assets/logo-filled.png");
-
 function ApiKeyForm(props) {
   const [apiError, setApiError] = useState("");
   const [apiKey, setApiKey] = useState("");
@@ -34,7 +32,7 @@ function ApiKeyForm(props) {
 
       authenticate(apiKey);
 
-      props.onAuthenticated();
+      props.onAuthenticated(apiKey);
     } catch (error) {
       setApiError(error.message);
     }

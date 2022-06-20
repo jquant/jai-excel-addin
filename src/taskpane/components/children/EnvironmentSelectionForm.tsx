@@ -21,17 +21,16 @@ function EnvironmentSelectionForm(props) {
     const form = event.currentTarget;
     setApiError("");
 
+    event.preventDefault();
+
     if (form.checkValidity() === false) {
-      event.preventDefault();
       event.stopPropagation();
     }
 
     setValidated(true);
-    event.preventDefault();
 
     setEnvironment(selectedEnvironment);
-    props.onEnvironmentSelected();
-
+    props.onEnvironmentSelected(selectedEnvironment);
   };
 
   const onSelectChange = (e) => {

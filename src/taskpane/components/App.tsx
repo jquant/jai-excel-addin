@@ -14,22 +14,26 @@ export interface AppProps {
 
 export default class App extends React.Component<AppProps> {
   state = {
+    apiKey: "",
+    environment: "",
     showApiKeyForm: true,
     showEnvironmentsSelectionForm: false,
     showCollectionsForm: false,
   };
 
-  authenticatedCallback() {
+  authenticatedCallback(apiKey: string) {
     this.setState({
       ...this.state,
+      apiKey,
       showApiKeyForm: false,
       showEnvironmentsSelectionForm: true,
     });
   }
 
-  environmentSelected() {
+  environmentSelected(environment: string) {
     this.setState({
       ...this.state,
+      environment,
       showEnvironmentsSelectionForm: false,
       showCollectionsForm: true,
     });
@@ -44,16 +48,19 @@ export default class App extends React.Component<AppProps> {
 
     return (
       <div className="ms-welcome">
-        {this.state.showApiKeyForm &&
-          <ApiKeyForm onAuthenticated={() => this.authenticatedCallback()}></ApiKeyForm>
-        }
-
-        {this.state.showEnvironmentsSelectionForm && (
-          <EnvironmentSelectionForm onEnvironmentSelected={() => this.environmentSelected()}></EnvironmentSelectionForm>
+        {this.state.showApiKeyForm && (
+          <ApiKeyForm onAuthenticated={(apiKey) => this.authenticatedCallback(apiKey)}></ApiKeyForm>
         )}
 
-        {this.state.showCollectionsForm && <CollectionsForm></CollectionsForm>}
+        {this.state.showEnvironmentsSelectionForm && (
+          <EnvironmentSelectionForm
+            onEnvironmentSelected={(environment) => this.environmentSelected(environment)}
+          ></EnvironmentSelectionForm>
+        )}
 
+        {this.state.showCollectionsForm && (
+          <CollectionsForm apiKey={this.state.apiKey} selectedEnvironment={this.state.environment}></CollectionsForm>
+        )}
       </div>
     );
   }
