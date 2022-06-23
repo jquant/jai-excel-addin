@@ -45,7 +45,7 @@ function ApiKeyForm(props) {
   return (
     <div className="ms-welcome">
       <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
-        <CCol md={12} className={"pb-1"}>
+        <CCol md={12} className={"pb-2"}>
           <CFormInput
             required
             className={"mb-1"}

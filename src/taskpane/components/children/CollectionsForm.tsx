@@ -7,15 +7,11 @@ import { DatabaseInfo } from "jai-sdk/dist/tsc/collection-management/database-in
 function CollectionsForm() {
   const [apiError, setApiError] = useState("");
   const [databaseInfos, setDatabaseInfos] = useState([]);
-  const [selectedDatabaseInfo, setSelectedDatabaseInfo] = useState({});
 
   useEffect(() => {
     getDatabaseInfo("complete").then(
       (data: DatabaseInfo[]) => {
         setDatabaseInfos(data);
-        if (data) {
-          setSelectedDatabaseInfo(data[0].db_name);
-        }
       },
       (e) => setApiError(e.message)
     );
@@ -33,7 +29,7 @@ function CollectionsForm() {
   return (
     <div>
       <CForm className={"row p-3"} onSubmit={handleSubmit}>
-        <CCol md={12} className={"pb-1"}>
+        <CCol md={12} className={"pb-2"}>
           <CFormSelect
             options={databaseInfos.map(({ db_name }) => ({ value: db_name, label: db_name }))}
             label="Choose a model"
@@ -45,6 +41,14 @@ function CollectionsForm() {
           <CButton className="ms-welcome__action" color="dark" variant="outline" type={"submit"}>
             Select
           </CButton>
+        </CCol>
+
+        <CCol md={12} className={"pb-2"}>
+          <CFormSelect label="Choose your query type">
+            <option value="1">Recommend</option>
+            <option value="2">Similarity by Id</option>
+            <option value="3">Prediction</option>
+          </CFormSelect>
         </CCol>
       </CForm>
     </div>

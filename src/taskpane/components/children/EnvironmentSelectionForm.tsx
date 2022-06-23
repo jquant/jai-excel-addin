@@ -48,11 +48,11 @@ function EnvironmentSelectionForm(props) {
   return (
     <div>
       <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
-        <CCol md={12} className={"pb-1"}>
+        <CCol md={12} className={"pb-2"}>
           {environments && (
             <CFormSelect
               options={environments.map(({ name }) => ({ value: name, label: name }))}
-              placeholder="Select an Environment"
+              label="Select an Environment"
               onChange={onSelectChange}
             />
           )}
