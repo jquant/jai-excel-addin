@@ -13,12 +13,8 @@ function EnvironmentSelectionForm(props) {
   const { apiKey } = useContext(AuthenticationContext);
 
   useEffect(() => {
-
-    if (!apiKey)
-      return;
-
-    getEnvironments().then(
-      (data) => {
+    getEnvironments().then((data) => {
+        console.log("environment loading...");
         setEnvironments(data);
         if (data) {
           setSelectedEnvironment(data[0].name);
@@ -26,7 +22,7 @@ function EnvironmentSelectionForm(props) {
       },
       (e) => setApiError(e.message)
     );
-  });
+  }, [apiKey]);
 
   const handleSubmit = (event) => {
     try {

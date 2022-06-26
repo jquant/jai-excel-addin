@@ -28,8 +28,9 @@ export default class App extends React.Component<AppProps> {
     authenticate(apiKey);
     this.setState({
       ...this.state,
-      apiKey
-    });
+      showEnvironmentsSelectionForm: true,
+      apiKey,
+    }, ()=> console.log("api key set"));
   };
 
   setEnvironmentName = (environmentName) => {
@@ -69,12 +70,13 @@ export default class App extends React.Component<AppProps> {
 
           Api Key: {this.state.apiKey}
 
-          {this.isAnonymousUser() &&
-            <AnonymousHeader></AnonymousHeader>}
+          {this.isAnonymousUser() && (
+            <AnonymousHeader></AnonymousHeader>
+          )}
 
-          {this.isAuthenticated() &&
+          {this.isAuthenticated() && (
             <AuthenticatedHeader></AuthenticatedHeader>
-          }
+          )}
 
           {!this.isApiKeySet() && (
             <React.Fragment>
@@ -84,20 +86,17 @@ export default class App extends React.Component<AppProps> {
             </React.Fragment>
           )}
 
-          {this.isApiKeySet() && !this.isEnvironmentSelected() && (
+          {this.state.showEnvironmentsSelectionForm && (
             <EnvironmentSelectionForm
               onEnvironmentSelected={(environmentName) => this.setEnvironmentName(environmentName)}>
             </EnvironmentSelectionForm>
           )}
 
-          {/*{this.state.showCollectionsForm && (*/}
-          {/*  <React.Fragment>*/}
-          {/*    <AuthenticatedHeader*/}
-          {/*      apiKey={this.state.apiKey}*/}
-          {/*      selectedEnvironment={this.state.environmentName}></AuthenticatedHeader>*/}
-          {/*    <CollectionsForm></CollectionsForm>*/}
-          {/*  </React.Fragment>*/}
-          {/*)}*/}
+          {this.isAuthenticated() && (
+            <React.Fragment>
+              <CollectionsForm></CollectionsForm>
+            </React.Fragment>
+          )}
 
         </div>
       </AuthenticationContext.Provider>
