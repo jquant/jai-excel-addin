@@ -1,7 +1,8 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { CButton, CCol, CForm, CFormSelect } from "@coreui/react";
-import { getEnvironments, setEnvironment } from "jai-sdk";
+import { getEnvironments } from "jai-sdk";
+import { AuthenticationContext } from "../../../hoc/AuthenticationContext";
 
 function EnvironmentSelectionForm(props) {
   const [apiError, setApiError] = useState("");
@@ -9,7 +10,13 @@ function EnvironmentSelectionForm(props) {
   const [validated, setValidated] = useState(false);
   const [environments, setEnvironments] = useState([]);
 
+  const { apiKey } = useContext(AuthenticationContext);
+
   useEffect(() => {
+
+    if (!apiKey)
+      return;
+
     getEnvironments().then(
       (data) => {
         setEnvironments(data);
@@ -19,7 +26,7 @@ function EnvironmentSelectionForm(props) {
       },
       (e) => setApiError(e.message)
     );
-  }, []);
+  });
 
   const handleSubmit = (event) => {
     try {
@@ -33,8 +40,8 @@ function EnvironmentSelectionForm(props) {
 
       setValidated(true);
 
-      setEnvironment(selectedEnvironment);
       props.onEnvironmentSelected(selectedEnvironment);
+
     } catch (e) {
       setApiError(e.message);
     }

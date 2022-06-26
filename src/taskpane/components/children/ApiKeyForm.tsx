@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
 import { CButton, CCol, CForm, CFormInput } from "@coreui/react";
-import { authenticate } from "jai-sdk";
 
 function ApiKeyForm(props) {
   const [apiError, setApiError] = useState("");
@@ -28,8 +27,6 @@ function ApiKeyForm(props) {
       if (!apiKey) {
         return;
       }
-
-      authenticate(apiKey);
 
       props.onAuthenticated(apiKey);
     } catch (error) {

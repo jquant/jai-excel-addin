@@ -7,6 +7,7 @@ import CollectionsForm from "./children/CollectionsForm";
 import AuthenticatedHeader from "./AuthenticatedHeader";
 import AnonymousHeader from "./AnonymousHeader";
 import { defaultContext, AuthenticationContext } from "../../hoc/AuthenticationContext";
+import { authenticate, setEnvironment } from "jai-sdk";
 
 const logo = require("./../../../assets/logo-filled.png");
 
@@ -24,30 +25,36 @@ export default class App extends React.Component<AppProps> {
   };
 
   setApiKey = (apiKey) => {
-
-    console.log('clicked')
+    authenticate(apiKey);
     this.setState({
       ...this.state,
       apiKey
-    }, () =>console.table(this.state));
+    });
   };
 
-  isUserAuthenticated = () => {
-    return !this.isAnonymousUser();
+  setEnvironmentName = (environmentName) => {
+    setEnvironment(environmentName);
+    this.setState({
+      ...this.state,
+      environmentName
+    });
+  };
+
+  isAuthenticated = () => {
+    return this.isApiKeySet() && this.isEnvironmentSelected();
   };
 
   isAnonymousUser = () => {
-    return !this.state.apiKey;
+    return !this.isAuthenticated();
   };
 
-  environmentSelected(environment: string) {
-    this.setState({
-      ...this.state,
-      environment,
-      showEnvironmentsSelectionForm: false,
-      showCollectionsForm: true
-    });
-  }
+  isApiKeySet = () => {
+    return this.state.apiKey && this.state.apiKey != "";
+  };
+
+  isEnvironmentSelected = () => {
+    return !!this.state.environmentName;
+  };
 
   render() {
     const { title, isOfficeInitialized } = this.props;
@@ -65,24 +72,33 @@ export default class App extends React.Component<AppProps> {
           {this.isAnonymousUser() &&
             <AnonymousHeader></AnonymousHeader>}
 
-          {this.isUserAuthenticated() &&
+          {this.isAuthenticated() &&
             <AuthenticatedHeader></AuthenticatedHeader>
           }
 
-          {this.isAnonymousUser() && (
+          {!this.isApiKeySet() && (
             <React.Fragment>
-                <ApiKeyForm onAuthenticated={(apiKey) => this.setApiKey(apiKey)}></ApiKeyForm>
+              <ApiKeyForm
+                onAuthenticated={(apiKey) => this.setApiKey(apiKey)}>
+              </ApiKeyForm>
             </React.Fragment>
           )}
 
-          {this.state.showCollectionsForm && (
-            <React.Fragment>
-              <AuthenticatedHeader
-                apiKey={this.state.apiKey}
-                selectedEnvironment={this.state.environmentName}></AuthenticatedHeader>
-              <CollectionsForm></CollectionsForm>
-            </React.Fragment>
+          {this.isApiKeySet() && !this.isEnvironmentSelected() && (
+            <EnvironmentSelectionForm
+              onEnvironmentSelected={(environmentName) => this.setEnvironmentName(environmentName)}>
+            </EnvironmentSelectionForm>
           )}
+
+          {/*{this.state.showCollectionsForm && (*/}
+          {/*  <React.Fragment>*/}
+          {/*    <AuthenticatedHeader*/}
+          {/*      apiKey={this.state.apiKey}*/}
+          {/*      selectedEnvironment={this.state.environmentName}></AuthenticatedHeader>*/}
+          {/*    <CollectionsForm></CollectionsForm>*/}
+          {/*  </React.Fragment>*/}
+          {/*)}*/}
+
         </div>
       </AuthenticationContext.Provider>
 
