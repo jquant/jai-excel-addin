@@ -8,6 +8,7 @@ import AuthenticatedHeader from "./AuthenticatedHeader";
 import AnonymousHeader from "./AnonymousHeader";
 import { defaultContext, AuthenticationContext } from "../../hoc/AuthenticationContext";
 import { authenticate, setEnvironment } from "jai-sdk";
+import OperationsForm from "./children/OperationsForm";
 
 const logo = require("./../../../assets/logo-filled.png");
 
@@ -19,18 +20,15 @@ export interface AppProps {
 export default class App extends React.Component<AppProps> {
   state = {
     ...defaultContext,
-    showApiKeyForm: true,
-    showEnvironmentsSelectionForm: false,
-    showCollectionsForm: false
+    operation: null
   };
 
   setApiKey = (apiKey) => {
     authenticate(apiKey);
     this.setState({
       ...this.state,
-      showEnvironmentsSelectionForm: true,
-      apiKey,
-    }, ()=> console.log("api key set"));
+      apiKey
+    }, () => console.log("api key set"));
   };
 
   setEnvironmentName = (environmentName) => {
@@ -55,6 +53,13 @@ export default class App extends React.Component<AppProps> {
 
   isEnvironmentSelected = () => {
     return !!this.state.environmentName;
+  };
+
+  setOperation = (operation) => {
+    this.setState({
+      ...this.state,
+      operation
+    });
   };
 
   render() {
@@ -86,16 +91,14 @@ export default class App extends React.Component<AppProps> {
             </React.Fragment>
           )}
 
-          {this.state.showEnvironmentsSelectionForm && (
+          {this.isApiKeySet() && !this.isEnvironmentSelected() && (
             <EnvironmentSelectionForm
               onEnvironmentSelected={(environmentName) => this.setEnvironmentName(environmentName)}>
             </EnvironmentSelectionForm>
           )}
 
           {this.isAuthenticated() && (
-            <React.Fragment>
-              <CollectionsForm></CollectionsForm>
-            </React.Fragment>
+            <OperationsForm onOperationSelected={(operation) => this.setOperation(operation)}></OperationsForm>
           )}
 
         </div>
