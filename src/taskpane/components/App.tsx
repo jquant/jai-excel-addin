@@ -1,14 +1,16 @@
 import * as React from "react";
 import Progress from "./Progress";
 import "@coreui/coreui/dist/css/coreui.min.css";
+import { defaultContext, AuthenticationContext } from "../../hoc/AuthenticationContext";
+import { OperationKeys } from "../../operations/operations";
+
 import ApiKeyForm from "./children/ApiKeyForm";
 import EnvironmentSelectionForm from "./children/EnvironmentSelectionForm";
-import CollectionsForm from "./children/CollectionsForm";
 import AuthenticatedHeader from "./AuthenticatedHeader";
 import AnonymousHeader from "./AnonymousHeader";
-import { defaultContext, AuthenticationContext } from "../../hoc/AuthenticationContext";
 import { authenticate, setEnvironment } from "jai-sdk";
 import OperationsForm from "./children/OperationsForm";
+import SimilarById from "./children/panels/SimilarById";
 
 const logo = require("./../../../assets/logo-filled.png");
 
@@ -137,6 +139,10 @@ export default class App extends React.Component<AppProps> {
               selectedValue={this.state.operation}
               onOperationSelected={(operation) => this.setOperation(operation)}></OperationsForm>
           )}
+
+          {this.state.operation === OperationKeys.SimilarityById &&
+            <SimilarById></SimilarById>
+          }
 
         </div>
       </AuthenticationContext.Provider>
