@@ -9,7 +9,7 @@ function OperationsForm(props) {
     <div>
       <CForm className={"row p-3"}>
         <CCol md={12} className={"pb-2"}>
-          <CFormSelect label="Choose your query type" onChange={onSelectChange}>
+          <CFormSelect label="Choose your query type" value={props.selectedValue} onChange={onSelectChange}>
             <option value="similarity-by-id">Similarity by Id</option>
             <option value="prediction">Prediction</option>
             <option value="recommendation">Recommendation</option>

@@ -12,6 +12,8 @@ import OperationsForm from "./children/OperationsForm";
 
 const logo = require("./../../../assets/logo-filled.png");
 
+const stateStorageKey = "state";
+
 export interface AppProps {
   title: string;
   isOfficeInitialized: boolean;
@@ -23,19 +25,50 @@ export default class App extends React.Component<AppProps> {
     operation: null
   };
 
+  componentDidMount() {
+    const storedState = localStorage.getItem(stateStorageKey);
+    if (storedState) {
+      this.setState({
+        ...this.state,
+        ...JSON.parse(storedState)
+      });
+    }
+  }
+
+  setJaiKeysFromState = () => {
+
+    const { apiKey, environmentName } = this.state;
+
+    if (apiKey) {
+      authenticate(apiKey);
+    }
+
+    if (environmentName) {
+      setEnvironment(environmentName);
+    }
+  };
+
+  storeState = () => {
+    localStorage.setItem(stateStorageKey, JSON.stringify(this.state));
+  };
+
   setApiKey = (apiKey) => {
-    authenticate(apiKey);
     this.setState({
       ...this.state,
       apiKey
-    }, () => console.log("api key set"));
+    }, () => {
+      this.storeState();
+      this.setJaiKeysFromState();
+    });
   };
 
   setEnvironmentName = (environmentName) => {
-    setEnvironment(environmentName);
     this.setState({
       ...this.state,
       environmentName
+    }, () => {
+      this.storeState();
+      this.setJaiKeysFromState();
     });
   };
 
@@ -59,6 +92,8 @@ export default class App extends React.Component<AppProps> {
     this.setState({
       ...this.state,
       operation
+    }, () => {
+      this.storeState();
     });
   };
 
@@ -98,7 +133,9 @@ export default class App extends React.Component<AppProps> {
           )}
 
           {this.isAuthenticated() && (
-            <OperationsForm onOperationSelected={(operation) => this.setOperation(operation)}></OperationsForm>
+            <OperationsForm
+              selectedValue={this.state.operation}
+              onOperationSelected={(operation) => this.setOperation(operation)}></OperationsForm>
           )}
 
         </div>
