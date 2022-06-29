@@ -1,8 +1,10 @@
 import * as React from "react";
 import { AuthenticationContext } from "../../hoc/AuthenticationContext";
 import { useContext } from "react";
+import PropTypes from "prop-types";
+import EnvironmentSelectionForm from "./children/EnvironmentSelectionForm";
 
-function AuthenticatedHeader(props) {
+function AuthenticatedHeader({ onLogoff }) {
 
   const { apiKey, environmentName } = useContext(AuthenticationContext);
   const logo = require("./../../../assets/logo-filled.png");
@@ -33,11 +35,15 @@ function AuthenticatedHeader(props) {
         Current Environment: <strong>{environmentName}</strong>
       </span>
 
-      <button onClick={() => props.onLogoff()}>
+      <button onClick={() => onLogoff()}>
         Logoff
       </button>
     </section>
   );
 }
+
+AuthenticatedHeader.propTypes = {
+  onLogoff: PropTypes.func
+};
 
 export default AuthenticatedHeader;
