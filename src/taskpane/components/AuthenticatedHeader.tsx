@@ -2,7 +2,6 @@ import * as React from "react";
 import { AuthenticationContext } from "../../hoc/AuthenticationContext";
 import { useContext } from "react";
 import PropTypes from "prop-types";
-import EnvironmentSelectionForm from "./children/EnvironmentSelectionForm";
 
 function AuthenticatedHeader({ onLogoff }) {
 
