@@ -42,9 +42,14 @@ function SimilarById() {
 
   const collectionItems = () => {
 
-    return databaseInfo
+    const mapped = databaseInfo
       .map(({ db_name }) => db_name)
       .sort();
+
+    return [
+      "Select...",
+      ...mapped
+    ];
   };
 
   const lockInputRange = async () => {
@@ -89,7 +94,6 @@ function SimilarById() {
 
         const { values } = range;
 
-
         const parsedIds = values
           .map(x => Number(x))
           .filter(x => !isNaN(x) && x > 0);
@@ -97,10 +101,20 @@ function SimilarById() {
         console.debug("collection", selectedCollection);
         console.debug("ids", parsedIds);
 
-
         const result = await similaritySearchById(selectedCollection, parsedIds);
 
-        console.debug(result);
+        const output = [["id" , "distance"]];
+
+        for (const { results } of result.similarity) {
+          for (const { id, distance } of results) {
+            output.push([id, distance]);
+          }
+        }
+
+        workbook.getRange(`A1:B${output.length}`).values = output;
+        await context.sync();
+
+        console.debug(output);
 
       } catch (e) {
         console.error(e);
@@ -141,8 +155,6 @@ function SimilarById() {
             </CButton>
           </CCol>
         </CRow>
-
-        {selectedInputWorksheet}
 
         <CRow className="g-3">
           <CCol xs="auto">
