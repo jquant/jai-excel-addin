@@ -2,7 +2,7 @@ import * as React from "react";
 import { AuthenticationContext } from "../../hoc/AuthenticationContext";
 import { useContext } from "react";
 
-function AuthenticatedHeader() {
+function AuthenticatedHeader(props) {
 
   const { apiKey, environmentName } = useContext(AuthenticationContext);
   const logo = require("./../../../assets/logo-filled.png");
@@ -33,6 +33,9 @@ function AuthenticatedHeader() {
         Current Environment: <strong>{environmentName}</strong>
       </span>
 
+      <button onClick={() => props.onLogoff()}>
+        Logoff
+      </button>
     </section>
   );
 }

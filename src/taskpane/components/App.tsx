@@ -21,10 +21,14 @@ export interface AppProps {
   isOfficeInitialized: boolean;
 }
 
+const initialState = {
+  ...defaultContext,
+  operation: null
+};
+
 export default class App extends React.Component<AppProps> {
   state = {
-    ...defaultContext,
-    operation: null
+    ...initialState
   };
 
   componentDidMount() {
@@ -99,6 +103,10 @@ export default class App extends React.Component<AppProps> {
     });
   };
 
+  logoff = () => {
+    this.setState(initialState, () => this.storeState());
+  };
+
   render() {
     const { title, isOfficeInitialized } = this.props;
 
@@ -110,14 +118,12 @@ export default class App extends React.Component<AppProps> {
       <AuthenticationContext.Provider value={this.state}>
         <div className="ms-welcome">
 
-          Api Key: {this.state.apiKey}
-
           {this.isAnonymousUser() && (
             <AnonymousHeader></AnonymousHeader>
           )}
 
           {this.isAuthenticated() && (
-            <AuthenticatedHeader></AuthenticatedHeader>
+            <AuthenticatedHeader onLogoff={() => this.logoff()}></AuthenticatedHeader>
           )}
 
           {!this.isApiKeySet() && (

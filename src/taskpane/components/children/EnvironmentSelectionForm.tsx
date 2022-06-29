@@ -54,7 +54,7 @@ function EnvironmentSelectionForm(props) {
         <CCol md={12} className={"pb-2"}>
           {environments && (
             <CFormSelect
-              options={environments.map(({ name }) => ({ value: name, label: name }))}
+              options={environments.map(({ key, name }) => ({ value: key || name, label: name }))}
               label="Select an Environment"
               onChange={onSelectChange}
             />
