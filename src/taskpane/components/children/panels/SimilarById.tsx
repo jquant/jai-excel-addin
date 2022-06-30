@@ -13,6 +13,8 @@ function SimilarById() {
   const [databaseInfo, setDatabaseInfo] = useState([]);
 
   const [selectedCollection, setSelectedCollection] = useState("");
+  const [selectedTopK, setSelectedTopK] = useState(5);
+
   const [selectedInputRange, setSelectedInputRange] = useState("");
   const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("");
 
@@ -51,6 +53,8 @@ function SimilarById() {
       ...mapped
     ];
   };
+
+  const topK = [5, 10, 25, 50];
 
   const lockInputRange = async () => {
     await Excel.run(async (context) => {
@@ -101,17 +105,21 @@ function SimilarById() {
         console.debug("collection", selectedCollection);
         console.debug("ids", parsedIds);
 
-        const result = await similaritySearchById(selectedCollection, parsedIds);
+        const result = await similaritySearchById(selectedCollection, parsedIds
+          , selectedTopK + 1);
 
-        const output = [["id" , "distance"]];
+        const output = [["source id", "similar id", "distance"]];
 
         for (const { results } of result.similarity) {
-          for (const { id, distance } of results) {
-            output.push([id, distance]);
+          const { id: sourceId } = results[0];
+          for (let i = 1; i < results.length; i++) {
+            const { id, distance } = results[i];
+
+            output.push([sourceId, id, distance]);
           }
         }
 
-        workbook.getRange(`A1:B${output.length}`).values = output;
+        workbook.getRange(`A1:C${output.length}`).values = output;
         await context.sync();
 
         console.debug(output);
@@ -125,14 +133,26 @@ function SimilarById() {
   return (
     <div>
       <CForm className={"row p-3"} onSubmit={handleSubmit}>
-        <CCol md={12} className={"pb-2"}>
-          <CFormSelect
-            onChange={e => setSelectedCollection(e.target.value)}
-            options={collectionItems()}
-            label={databaseInfo.length == 0 ? "Please wait, loading..." : "Choose a model"}
-          />
-          {apiError && <div className={"error-message"}>{apiError}</div>}
-        </CCol>
+        <CRow>
+          <CCol xs="auto" className={"pb-2"}>
+            <CFormSelect
+              onChange={e => setSelectedCollection(e.target.value)}
+              options={collectionItems()}
+              label={databaseInfo.length == 0 ? "Please wait, loading..." : "Choose a model"}
+            />
+            {apiError && <div className={"error-message"}>{apiError}</div>}
+          </CCol>
+
+          <CCol xs="auto" className={"pb-2"}>
+            <CFormSelect
+              onChange={e => setSelectedTopK(parseInt(e.target.value))}
+              options={topK.map(x => x.toString())}
+              label="TopK"
+            />
+
+            {apiError && <div className={"error-message"}>{apiError}</div>}
+          </CCol>
+        </CRow>
 
         <CRow className="g-3">
           <CCol xs="auto">
