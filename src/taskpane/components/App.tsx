@@ -11,6 +11,7 @@ import AnonymousHeader from "./AnonymousHeader";
 import { authenticate, setEnvironment } from "jai-sdk";
 import OperationsForm from "./children/OperationsForm";
 import SimilarById from "./children/panels/SimilarById";
+import Recommendaton from "./children/panels/Recommendaton";
 
 const logo = require("./../../../assets/logo-filled.png");
 
@@ -148,6 +149,10 @@ export default class App extends React.Component<AppProps> {
 
           {this.state.operation === OperationKeys.SimilarityById &&
             <SimilarById></SimilarById>
+          }
+
+          {this.state.operation === OperationKeys.Recommendation &&
+            <Recommendaton></Recommendaton>
           }
 
         </div>

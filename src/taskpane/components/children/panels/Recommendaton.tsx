@@ -5,7 +5,7 @@ import { authenticate, getDatabaseInfo, setEnvironment, similaritySearchById } f
 import { DatabaseInfo } from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import { AuthenticationContext } from "../../../../hoc/AuthenticationContext";
 
-function SimilarById() {
+function Recommendaton() {
 
   const { apiKey, environmentName } = useContext(AuthenticationContext);
 
@@ -45,8 +45,7 @@ function SimilarById() {
   const collectionItems = () => {
 
     const mapped = databaseInfo
-      .filter(x => x.db_type !== "RecommendationSystem")
-      .filter(x => x.db_type !== "Recommendation")
+      .filter(x => x.db_type === "Recommendation")
       .map(({ db_name }) => db_name)
       .sort();
 
@@ -218,4 +217,4 @@ function SimilarById() {
   );
 }
 
-export default SimilarById;
+export default Recommendaton;
