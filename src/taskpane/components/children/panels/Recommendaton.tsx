@@ -1,9 +1,16 @@
 import * as React from "react";
-import { useContext, useEffect, useState } from "react";
-import { CButton, CCol, CForm, CFormInput, CFormLabel, CFormSelect, CRow } from "@coreui/react";
-import { authenticate, getDatabaseInfo, setEnvironment, similaritySearchById } from "jai-sdk";
+import { Fragment, useContext, useEffect, useState } from "react";
+import { CButton, CCol, CForm, CFormInput, CFormSelect, CRow } from "@coreui/react";
+import {
+  authenticate,
+  getDatabaseInfo,
+  setEnvironment,
+  similaritySearchById,
+  getDatabaseDescription
+} from "jai-sdk";
 import { DatabaseInfo } from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import { AuthenticationContext } from "../../../../hoc/AuthenticationContext";
+import { topKOptions } from "../../../../constants/listing/topk";
 
 function Recommendaton() {
 
@@ -19,6 +26,7 @@ function Recommendaton() {
   const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("");
 
   const [selectedOutputRange, setSelectedOutputRange] = useState("");
+  const [twinBaseName, setTwinBaseName] = useState("");
 
   useEffect(() => {
 
@@ -32,6 +40,20 @@ function Recommendaton() {
       (e) => setApiError(e.message)
     );
   }, [apiKey, environmentName]);
+
+  useEffect(() => {
+    getTwinBase();
+  }, [selectedCollection]);
+
+  const getTwinBase = () => {
+
+    if (!selectedCollection)
+      return;
+
+    getDatabaseDescription(selectedCollection).then(databaseInfo => {
+      setTwinBaseName(databaseInfo.twin_base);
+    });
+  };
 
   const handleSubmit = async (event) => {
     try {
@@ -54,8 +76,6 @@ function Recommendaton() {
       ...mapped
     ];
   };
-
-  const topK = [5, 10, 25, 50];
 
   const lockInputRange = async () => {
     await Excel.run(async (context) => {
@@ -85,6 +105,22 @@ function Recommendaton() {
   const validToRunReport = () => {
     return selectedOutputRange && selectedInputRange;
   };
+
+  const collectionSelected = () => !!selectedCollection;
+
+  const inputRangeSelectionText = () => (
+    <Fragment>
+      Select the input id range for <strong>'{selectedCollection}'</strong>
+      and then click on <strong>Lock Range</strong>
+    </Fragment>
+  );
+
+  const outputRangeSelectionText = () => (
+    <Fragment>
+      Select the output range for <strong>'{twinBaseName}'</strong>
+      recommendations output and then click on <strong>Lock Range</strong>
+    </Fragment>
+  );
 
   const run = async () => {
     await Excel.run(async (context) => {
@@ -135,11 +171,12 @@ function Recommendaton() {
     <div>
       <CForm className={"row p-3"} onSubmit={handleSubmit}>
         <CRow>
+
           <CCol xs="auto" className={"pb-2"}>
             <CFormSelect
               onChange={e => setSelectedCollection(e.target.value)}
               options={collectionItems()}
-              label={databaseInfo.length == 0 ? "Please wait, loading..." : "Choose a model"}
+              label={databaseInfo.length == 0 ? "Please wait, loading..." : "Select the source table"}
             />
             {apiError && <div className={"error-message"}>{apiError}</div>}
           </CCol>
@@ -147,69 +184,83 @@ function Recommendaton() {
           <CCol xs="auto" className={"pb-2"}>
             <CFormSelect
               onChange={e => setSelectedTopK(parseInt(e.target.value))}
-              options={topK.map(x => x.toString())}
+              options={topKOptions.map(x => x.toString())}
               label="TopK"
             />
 
             {apiError && <div className={"error-message"}>{apiError}</div>}
           </CCol>
+
+          {twinBaseName &&
+            <CCol xs="auto">
+              <CFormInput
+                className={"mb-1"}
+                label="Recommendation Table (Twin Base)"
+                value={twinBaseName}
+              />
+            </CCol>
+          }
+
         </CRow>
 
-        <CRow className="g-3">
-          <CCol xs="auto">
-            <CFormInput
-              required
-              className={"mb-1"}
-              label="Select the input it range and click in 'Lock Range'"
-              value={selectedInputRange}
-              feedbackInvalid="Please, insert an Api Key."
-              id="apiKey"
-            />
-          </CCol>
-          <CCol xs="auto">
-            <CButton
-              type="button"
-              color="dark"
-              variant="outline"
-              onClick={() => lockInputRange()}>
-              Lock Input Range
-            </CButton>
-          </CCol>
-        </CRow>
+        {collectionSelected() &&
+          <Fragment>
+            <CRow className="g-3">
+              <CCol xs="auto">
+                <CFormInput
+                  required
+                  className={"mb-1"}
+                  label={inputRangeSelectionText()}
+                  value={selectedInputRange}
+                  feedbackInvalid="Please, insert an Api Key."
+                  id="apiKey"
+                />
+              </CCol>
+              <CCol xs="auto">
+                <CButton
+                  type="button"
+                  color="dark"
+                  variant="outline"
+                  onClick={() => lockInputRange()}>
+                  Lock Input Range
+                </CButton>
+              </CCol>
+            </CRow>
 
-        <CRow className="g-3">
-          <CCol xs="auto">
-            <CFormInput
-              required
-              className={"mb-1"}
-              label="Select the output range and click in 'Lock Range'"
-              value={selectedOutputRange}
-              feedbackInvalid="Please, insert an Api Key."
-              id="apiKey"
-            />
-          </CCol>
-          <CCol xs="auto">
-            <CButton
-              type="button"
+            <CRow className="g-3">
+              <CCol xs="auto">
+                <CFormInput
+                  required
+                  className={"mb-1"}
+                  label={outputRangeSelectionText()}
+                  value={selectedOutputRange}
+                  feedbackInvalid="Please, insert an Api Key."
+                  id="apiKey"
+                />
+              </CCol>
+              <CCol xs="auto">
+                <CButton
+                  type="button"
+                  variant="outline"
+                  onClick={() => lockOutputRange()}>
+                  Lock Output Range
+                </CButton>
+              </CCol>
+            </CRow>
 
-              variant="outline"
-              onClick={() => lockOutputRange()}>
-              Lock Output Range
-            </CButton>
-          </CCol>
-        </CRow>
-
-        <CCol md={12}>
-          <CButton
-            className="ms-welcome__action"
-            color="dark"
-            variant="outline"
-            disabled={!validToRunReport()}
-            onClick={() => run()}
-            type={"button"}>
-            Find Similar
-          </CButton>
-        </CCol>
+            <CCol md={12}>
+              <CButton
+                className="ms-welcome__action"
+                color="dark"
+                variant="outline"
+                disabled={!validToRunReport()}
+                onClick={() => run()}
+                type={"button"}>
+                Find Similar
+              </CButton>
+            </CCol>
+          </Fragment>
+        }
 
       </CForm>
 
