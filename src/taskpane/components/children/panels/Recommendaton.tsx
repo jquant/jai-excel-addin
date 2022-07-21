@@ -22,6 +22,7 @@ import {
 import { DatabaseInfo } from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import { AuthenticationContext } from "../../../../hoc/AuthenticationContext";
 import { topKOptions } from "../../../../constants/listing/topk";
+import { implementNumberedRangeOnSelection } from "../../../../services/excel-range-filtering";
 
 function Recommendaton() {
 
@@ -96,8 +97,19 @@ function Recommendaton() {
 
       await context.sync();
 
-      setSelectedInputRange(range.address);
-      setSelectedInputWorksheet(range.worksheet.name);
+      try {
+        const rangeString = range.address.toString();
+
+        const filtered = implementNumberedRangeOnSelection(rangeString);
+
+        console.log({ rangeString, filtered });
+
+        setSelectedInputRange(range.address);
+        setSelectedInputWorksheet(range.worksheet.name);
+
+      } catch (e) {
+        console.log(e);
+      }
     });
   };
 
@@ -162,7 +174,9 @@ function Recommendaton() {
         const result = await similaritySearchById(selectedCollection, parsedIds
           , selectedTopK + 1);
 
-        const output = [["source id", "similar id", "distance"]];
+        const output = [
+          ["source id", "similar id", "distance"]
+        ];
 
         for (const { results } of result.similarity) {
           const { id: sourceId } = results[0];
@@ -172,6 +186,7 @@ function Recommendaton() {
             output.push([sourceId, id, distance]);
           }
         }
+
 
         workbook.getRange(`A1:C${output.length}`).values = output;
         await context.sync();
