@@ -15,14 +15,18 @@ import {
   authenticate,
   getDatabaseInfo,
   setEnvironment,
-  similaritySearchById,
+  recommendationById,
   getDatabaseDescription
 } from "jai-sdk";
 
 import { DatabaseInfo } from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import { AuthenticationContext } from "../../../../hoc/AuthenticationContext";
 import { topKOptions } from "../../../../constants/listing/topk";
-import { implementNumberedRangeOnSelection } from "../../../../services/excel-range-filtering";
+import {
+  extractAddressRange,
+  extractFirstCellFromRange,
+  implementNumberedRangeOnSelection
+} from "../../../../services/excel-range-filtering";
 
 function Recommendaton() {
 
@@ -158,11 +162,16 @@ function Recommendaton() {
 
       try {
 
-        const workbook = context.workbook.worksheets.getItem(selectedInputWorksheet);
+        const workbook = context.workbook.worksheets
+          .getItem(selectedInputWorksheet);
 
         const range = workbook.getRange(selectedInputRange);
+
         range.load("values");
+
         await context.sync();
+
+        debugger;
 
         const { values } = range;
 
@@ -173,14 +182,20 @@ function Recommendaton() {
         console.debug("collection", selectedCollection);
         console.debug("ids", parsedIds);
 
-        const result = await similaritySearchById(selectedCollection, parsedIds
+        const result = await recommendationById(selectedCollection, parsedIds
           , selectedTopK + 1);
 
+        debugger
+
         const output = [
-          ["source id", "similar id", "distance"]
+          [
+            `source "${selectedCollection}" id`,
+            `recommended "${twinBaseName}" id`,
+            "distance"
+          ]
         ];
 
-        for (const { results } of result.similarity) {
+        for (const { results } of result.recommendation) {
           const { id: sourceId } = results[0];
           for (let i = 1; i < results.length; i++) {
             const { id, distance } = results[i];
@@ -189,6 +204,7 @@ function Recommendaton() {
           }
         }
 
+        const firstCell = extractFirstCellFromRange(selectedOutputRange);
 
         workbook.getRange(`A1:C${output.length}`).values = output;
         await context.sync();

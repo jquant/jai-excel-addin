@@ -4959,13 +4959,14 @@ isstream@~0.1.2:
   resolved "https://registry.npmjs.org/isstream/-/isstream-0.1.2.tgz"
   integrity sha512-Yljz7ffyPbrLpLngrMtZ7NduUgVvi6wG9RJ9IUcyCd59YQ911PBJphODUcbOVbqYfxe1wuYf/LJ8PauMRwsM/g==
 
-jai-sdk@^0.46.0:
-  version "0.46.0"
-  resolved "https://registry.yarnpkg.com/jai-sdk/-/jai-sdk-0.46.0.tgz#bc9eb3ef916125f49695b4373fad6743d4d397f3"
-  integrity sha512-DXfZnRJoLTFj77VUekq+0X9MrKUxQcl1LP3kS4EmLpwp9hWSpY9D63HxPMo3VolgfOheuHd7cyRXz4twmrHkZA==
+jai-sdk@^0.51.0:
+  version "0.51.0"
+  resolved "https://registry.yarnpkg.com/jai-sdk/-/jai-sdk-0.51.0.tgz#5fcdae2da182c4ba34a3eac342e74e9a84895471"
+  integrity sha512-XYWnTw8qzo327Hk2+Dgp65WxKY+5BG/cC8bYDyVbGHzbwmxRF6VaMnvFTLFeCIN4lJsSKMPy33/SB3NK1ZD8Ww==
   dependencies:
     "@types/yargs" "^17.0.8"
     axios "^0.24.0"
+    es6-promise "^4.2.8"
     form-data "^4.0.0"
     import "^0.0.6"
     joi "^17.5.0"
