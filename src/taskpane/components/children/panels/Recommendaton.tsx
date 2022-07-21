@@ -102,9 +102,7 @@ function Recommendaton() {
 
         const filtered = implementNumberedRangeOnSelection(rangeString);
 
-        console.log({ rangeString, filtered });
-
-        setSelectedInputRange(range.address);
+        setSelectedInputRange(filtered);
         setSelectedInputWorksheet(range.worksheet.name);
 
       } catch (e) {
@@ -121,7 +119,11 @@ function Recommendaton() {
 
       await context.sync();
 
-      setSelectedOutputRange(range.address);
+      const rangeString = range.address.toString();
+
+      const filtered = implementNumberedRangeOnSelection(rangeString);
+
+      setSelectedOutputRange(filtered);
     });
   };
 

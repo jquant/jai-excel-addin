@@ -1,9 +1,10 @@
 export const implementNumberedRangeOnSelection = (fullExcelRange: string) => {
 
-  debugger;
+  const pattern = new RegExp("(?<sheet>.*)\\!(?<start>\\D+)\\:(?<end>\\D+)", "gm");
+  const match = pattern.exec(fullExcelRange);
 
-  const match = fullExcelRange
-    .match(/(?<sheet>.*)\\!(?<start>\w+)\\:(?<end>\w+)/gm);
+  if (!match || !match.groups)
+    return fullExcelRange;
 
   const { sheet, start, end } = match.groups;
 
