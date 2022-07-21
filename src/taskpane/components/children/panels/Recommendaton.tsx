@@ -1,6 +1,16 @@
 import * as React from "react";
 import { Fragment, useContext, useEffect, useState } from "react";
-import { CButton, CCol, CForm, CFormInput, CFormSelect, CRow } from "@coreui/react";
+
+import {
+  CButton,
+  CCol,
+  CContainer,
+  CForm,
+  CFormInput,
+  CFormSelect,
+  CRow
+} from "@coreui/react";
+
 import {
   authenticate,
   getDatabaseInfo,
@@ -8,6 +18,7 @@ import {
   similaritySearchById,
   getDatabaseDescription
 } from "jai-sdk";
+
 import { DatabaseInfo } from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import { AuthenticationContext } from "../../../../hoc/AuthenticationContext";
 import { topKOptions } from "../../../../constants/listing/topk";
@@ -108,17 +119,23 @@ function Recommendaton() {
 
   const collectionSelected = () => !!selectedCollection;
 
+  const sourceTableLabel = () => {
+
+    if (databaseInfo.length == 0)
+      return "Please wait, loading...";
+
+    return "Select the source table";
+  };
+
   const inputRangeSelectionText = () => (
     <Fragment>
-      Select the input id range for <strong>'{selectedCollection}'</strong>
-      and then click on <strong>Lock Range</strong>
+      Input id range for <strong>'{selectedCollection}'</strong>
     </Fragment>
   );
 
   const outputRangeSelectionText = () => (
     <Fragment>
-      Select the output range for <strong>'{twinBaseName}'</strong>
-      recommendations output and then click on <strong>Lock Range</strong>
+      Output range for <strong>'{twinBaseName}'</strong>
     </Fragment>
   );
 
@@ -168,20 +185,22 @@ function Recommendaton() {
   };
 
   return (
-    <div>
-      <CForm className={"row p-3"} onSubmit={handleSubmit}>
-        <CRow>
+    <CContainer className="overflow-hidden">
 
-          <CCol xs="auto" className={"pb-2"}>
+      <CForm className={"row p-3"} onSubmit={handleSubmit}>
+
+        <CRow xs={{ gutterY: 2 }}>
+
+          <CCol xs={{ span: 10 }}>
             <CFormSelect
               onChange={e => setSelectedCollection(e.target.value)}
               options={collectionItems()}
-              label={databaseInfo.length == 0 ? "Please wait, loading..." : "Select the source table"}
+              label={sourceTableLabel()}
             />
             {apiError && <div className={"error-message"}>{apiError}</div>}
           </CCol>
 
-          <CCol xs="auto" className={"pb-2"}>
+          <CCol>
             <CFormSelect
               onChange={e => setSelectedTopK(parseInt(e.target.value))}
               options={topKOptions.map(x => x.toString())}
@@ -191,22 +210,24 @@ function Recommendaton() {
             {apiError && <div className={"error-message"}>{apiError}</div>}
           </CCol>
 
-          {twinBaseName &&
-            <CCol xs="auto">
+        </CRow>
+
+        {twinBaseName &&
+          <CRow xs={{ gutterY: 2 }}>
+            <CCol>
               <CFormInput
-                className={"mb-1"}
-                label="Recommendation Table (Twin Base)"
+                label="Recommendation Output Table (Twin Base)"
                 value={twinBaseName}
               />
             </CCol>
-          }
-
-        </CRow>
+          </CRow>
+        }
 
         {collectionSelected() &&
+
           <Fragment>
-            <CRow className="g-3">
-              <CCol xs="auto">
+            <CRow xs={{ gutterY: 2 }}>
+              <CCol xs={{ span: 10 }}>
                 <CFormInput
                   required
                   className={"mb-1"}
@@ -216,19 +237,18 @@ function Recommendaton() {
                   id="apiKey"
                 />
               </CCol>
-              <CCol xs="auto">
+              <CCol className="d-flex flex-column">
                 <CButton
-                  type="button"
+                  className="lock-button"
                   color="dark"
-                  variant="outline"
                   onClick={() => lockInputRange()}>
-                  Lock Input Range
+                  Lock
                 </CButton>
               </CCol>
             </CRow>
 
-            <CRow className="g-3">
-              <CCol xs="auto">
+            <CRow xs={{ gutterY: 2 }}>
+              <CCol xs={{ span: 10 }}>
                 <CFormInput
                   required
                   className={"mb-1"}
@@ -238,33 +258,32 @@ function Recommendaton() {
                   id="apiKey"
                 />
               </CCol>
-              <CCol xs="auto">
+              <CCol className="d-flex flex-column">
                 <CButton
-                  type="button"
-                  variant="outline"
+                  className="lock-button"
+                  color="dark"
                   onClick={() => lockOutputRange()}>
-                  Lock Output Range
+                  Lock
                 </CButton>
               </CCol>
             </CRow>
 
-            <CCol md={12}>
-              <CButton
-                className="ms-welcome__action"
-                color="dark"
-                variant="outline"
-                disabled={!validToRunReport()}
-                onClick={() => run()}
-                type={"button"}>
-                Find Similar
-              </CButton>
-            </CCol>
+            <CRow xs={{ gutterY: 2 }}>
+              <CCol md={12}>
+                <CButton color="success"
+                         disabled={!validToRunReport()}
+                         onClick={() => run()}>
+                  Recommend
+                </CButton>
+              </CCol>
+            </CRow>
+
           </Fragment>
         }
 
       </CForm>
 
-    </div>
+    </CContainer>
   );
 }
 

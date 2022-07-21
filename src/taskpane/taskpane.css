@@ -84,3 +84,8 @@ b {
     font-size: .875em;
     color: #e55353;
 }
+
+.lock-button{
+    margin: auto;
+    margin-bottom:5px;
+}
