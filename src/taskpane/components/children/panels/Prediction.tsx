@@ -1,31 +1,29 @@
 import * as React from "react";
 import {Fragment, useContext, useEffect, useState} from "react";
-
-import {CButton, CCol, CContainer, CForm, CFormInput, CFormSelect, CRow} from "@coreui/react";
-
-import {authenticate, getDatabaseDescription, getDatabaseInfo, recommendationById, setEnvironment} from "jai-sdk";
-
+import {CButton, CCol, CForm, CFormInput, CFormSelect, CRow} from "@coreui/react";
+import {authenticate, getDatabaseInfo, predict, setEnvironment} from "jai-sdk";
 import {DatabaseInfo} from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import {AuthenticationContext} from "../../../../hoc/AuthenticationContext";
-import {topKOptions} from "../../../../constants/listing/topk";
-import {extractCollectionRange, implementNumberedRangeOnSelection,} from "../../../../services/excel-range-filtering";
+import {extractCollectionRange, implementNumberedRangeOnSelection} from "../../../../services/excel-range-filtering";
 
-function Recommendaton() {
+function Prediction() {
+
     const {apiKey, environmentName} = useContext(AuthenticationContext);
 
     const [apiError, setApiError] = useState("");
+    const [collectionError, setCollectionError] = useState("");
     const [databaseInfo, setDatabaseInfo] = useState([]);
 
     const [selectedCollection, setSelectedCollection] = useState("");
     const [selectedTopK, setSelectedTopK] = useState(5);
 
-    const [selectedInputRange, setSelectedInputRange] = useState("");
-    const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("");
+    const [selectedInputRange, setSelectedInputRange] = useState("Sheet1!E1:F2");
+    const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("Sheet1");
 
-    const [selectedOutputRange, setSelectedOutputRange] = useState("");
-    const [twinBaseName, setTwinBaseName] = useState("");
+    const [selectedOutputRange, setSelectedOutputRange] = useState("Sheet1!A1");
 
     useEffect(() => {
+
         authenticate(apiKey);
         setEnvironment(environmentName);
 
@@ -37,18 +35,6 @@ function Recommendaton() {
         );
     }, [apiKey, environmentName]);
 
-    useEffect(() => {
-        getTwinBase();
-    }, [selectedCollection]);
-
-    const getTwinBase = () => {
-        if (!selectedCollection) return;
-
-        getDatabaseDescription(selectedCollection).then((databaseInfo) => {
-            setTwinBaseName(databaseInfo.twin_base);
-        });
-    };
-
     const handleSubmit = async (event) => {
         try {
             event.preventDefault();
@@ -59,15 +45,24 @@ function Recommendaton() {
     };
 
     const collectionItems = () => {
+
         const mapped = databaseInfo
-            .filter((x) => x.db_type === "Recommendation")
+            .filter(x => x.db_type !== "RecommendationSystem")
+            .filter(x => x.db_type !== "Recommendation")
             .map(({db_name}) => db_name)
             .sort();
 
-        return ["Select...", ...mapped];
+        return [
+            "Select...",
+            ...mapped
+        ];
     };
 
+    const collectionSelected = () => !!selectedCollection;
+
     const lockInputRange = async () => {
+        setCollectionError("");
+
         await Excel.run(async (context) => {
             const range = context.workbook.getSelectedRange();
 
@@ -89,6 +84,8 @@ function Recommendaton() {
     };
 
     const lockOutputRange = async () => {
+        setCollectionError("")
+
         await Excel.run(async (context) => {
             let range = context.workbook.getSelectedRange();
 
@@ -108,54 +105,44 @@ function Recommendaton() {
         return selectedOutputRange && selectedInputRange;
     };
 
-    const collectionSelected = () => !!selectedCollection;
-
-    const sourceTableLabel = () => {
-        if (databaseInfo.length == 0) return "Please wait, loading...";
-
-        return "Select the source table";
-    };
-
-    const inputRangeSelectionText = () => (
-        <Fragment>
-            Input id range for <strong>'{selectedCollection}'</strong>
-        </Fragment>
-    );
-
-    const outputRangeSelectionText = () => (
-        <Fragment>
-            Output range for <strong>'{twinBaseName}'</strong>
-        </Fragment>
-    );
+    interface criteria {
+        [name: string]: string
+    }
 
     const run = async () => {
+        setCollectionError("");
+
         await Excel.run(async (context) => {
+
             try {
+
                 const workbook = context.workbook.worksheets.getItem(selectedInputWorksheet);
 
                 const range = workbook.getRange(selectedInputRange);
-
                 range.load("values");
-
                 await context.sync();
 
                 const {values} = range;
 
-                const parsedIds = values.map((x) => Number(x)).filter((x) => !isNaN(x) && x > 0);
+                let map: { [key: string]: boolean } = {};
 
-                console.debug("collection", selectedCollection);
-                console.debug("ids", parsedIds);
+                for (let i = 0; i < values.length; i++) {
+                    const x = values[i];
+                    map[`"${x[0]}"`] = x[1];
+                }
 
-                const result = await recommendationById(selectedCollection, parsedIds, selectedTopK + 1);
+                let array = [{...map}];
 
-                const output = [[`source "${selectedCollection}" id`, `recommended "${twinBaseName}" id`, "distance"]];
-
+                const result = await predict(selectedCollection, array);
+                debugger
                 if (!result.recommendation) {
-                    workbook.getRange(`A1:C${output.length}`).values = output;
-                    await context.sync();
                     return;
                 }
-                for (const {results} of result.recommendation) {
+                const output = [];
+                const header = [`source "${selectedCollection}" id`, `predict`, "distance"]
+                output.push(header);
+
+                for (const {query_id, results} of result.similarity) {
                     const {id: sourceId} = results[0];
                     for (let i = 1; i < results.length; i++) {
                         const {id, distance} = results[i];
@@ -164,94 +151,77 @@ function Recommendaton() {
                     }
                 }
 
-                let collectionRange = extractCollectionRange(selectedOutputRange, output[0].length, output.length);
+                let collectionRange = extractCollectionRange(selectedOutputRange, header.length, output.length);
 
                 workbook.getRange(collectionRange).values = output;
-
                 await context.sync();
-
-                console.debug(output);
             } catch (e) {
                 console.error(e);
+                setCollectionError("Error getting output results.")
             }
         });
     };
 
-
     return (
-        <CContainer className="overflow-hidden">
-            <CForm className={"row p-3"} onSubmit={handleSubmit}>
-                <CRow xs={{gutterY: 2}}>
-                    <CCol xs={{span: 10}}>
+        <div>
+            <CForm className={"p-3"} onSubmit={handleSubmit}>
+                <CRow>
+                    <CCol xs={{span: 12}} sm={{span: 12}}>
                         <CFormSelect
-                            onChange={(e) => setSelectedCollection(e.target.value)}
+                            onChange={e => setSelectedCollection(e.target.value)}
                             options={collectionItems()}
-                            label={sourceTableLabel()}
+                            label={databaseInfo.length == 0 ? "Please wait, loading..." : "Choose a model"}
                         />
-                        {apiError && <div className={"error-message"}>{apiError}</div>}
-                    </CCol>
-
-                    <CCol>
-                        <CFormSelect
-                            onChange={(e) => setSelectedTopK(parseInt(e.target.value))}
-                            options={topKOptions.map((x) => x.toString())}
-                            label="TopK"
-                        />
-
                         {apiError && <div className={"error-message"}>{apiError}</div>}
                     </CCol>
                 </CRow>
 
-                {twinBaseName && (
-                    <CRow xs={{gutterY: 2}}>
-                        <CCol>
-                            <CFormInput label="Recommendation Output Table (Twin Base)" value={twinBaseName}/>
-                        </CCol>
-                    </CRow>
-                )}
-
                 {collectionSelected() && (
                     <Fragment>
-                        <CRow xs={{gutterY: 2}}>
-                            <CCol xs={{span: 10}}>
-                                <CFormInput required className={"mb-1"} label={inputRangeSelectionText()}
-                                            value={selectedInputRange}/>
+                        <CRow>
+                            <CCol xs={{span: 8}} sm={{span: 10}}>
+                                <CFormInput
+                                    required
+                                    className={"mb-1"}
+                                    label="Select the input it range and click in 'Lock Range'"
+                                    value={selectedInputRange}
+                                />
                             </CCol>
-                            <CCol className="d-flex flex-column">
+                            <CCol xs={{span: 10}} sm={{span: 2}} className="d-flex flex-column">
                                 <CButton className="lock-button" color="dark" onClick={() => lockInputRange()}>
                                     Lock
                                 </CButton>
                             </CCol>
                         </CRow>
 
-                        <CRow xs={{gutterY: 2}}>
-                            <CCol xs={{span: 10}}>
+                        <CRow>
+                            <CCol xs={{span: 10}} sm={{span: 10}}>
                                 <CFormInput
                                     required
                                     className={"mb-1"}
-                                    label={outputRangeSelectionText()}
+                                    label="Select the output range and click in 'Lock Range'"
                                     value={selectedOutputRange}
                                 />
                             </CCol>
-                            <CCol className="d-flex flex-column">
+                            <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
                                 <CButton className="lock-button" color="dark" onClick={() => lockOutputRange()}>
                                     Lock
                                 </CButton>
                             </CCol>
                         </CRow>
+                        {collectionError && <div className={"error-message"}>{collectionError}</div>}
+                        <CCol md={12}>
+                            <CButton color="success" disabled={!validToRunReport()} onClick={() => run()}>
+                                Predict
+                            </CButton>
+                        </CCol>
 
-                        <CRow xs={{gutterY: 2}}>
-                            <CCol md={12}>
-                                <CButton color="success" disabled={!validToRunReport()} onClick={() => run()}>
-                                    Recommend
-                                </CButton>
-                            </CCol>
-                        </CRow>
                     </Fragment>
                 )}
             </CForm>
-        </CContainer>
+
+        </div>
     );
 }
 
-export default Recommendaton;
+export default Prediction;

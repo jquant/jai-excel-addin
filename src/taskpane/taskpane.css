@@ -85,7 +85,8 @@ b {
     color: #e55353;
 }
 
-.lock-button{
+.lock-button {
     margin: auto;
-    margin-bottom:5px;
+    margin-bottom: 5px;
+    width: 100%;
 }

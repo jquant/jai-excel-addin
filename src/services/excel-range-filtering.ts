@@ -38,10 +38,12 @@ export const extractFirstCellFromRange = (fullExcelRange: string) => {
     return start;
 };
 
-export const extractCollectionRange = (selectedOutputRange: string, columnsNumber: number, colletionLength: number) => {
+export const extractCollectionRange = (selectedOutputRange: string, columnsNumber: number, collectionLength: number) => {
     let rangeProps = new ExcelRangeProps(selectedOutputRange);
+    debugger
+
     const secondColumnLetter = String.fromCharCode((columnsNumber - 1) + rangeProps.firstCellColumnNumber + 64);
-    return `${rangeProps.firstCell}:${secondColumnLetter}${(colletionLength - 1) + rangeProps.firstCellRow}`;
+    return `${rangeProps.firstCell}:${secondColumnLetter}${(collectionLength - 1) + rangeProps.firstCellRow}`;
 };
 
 
