@@ -8,7 +8,7 @@ import ApiKeyForm from "./children/ApiKeyForm";
 import EnvironmentSelectionForm from "./children/EnvironmentSelectionForm";
 import AuthenticatedHeader from "./AuthenticatedHeader";
 import AnonymousHeader from "./AnonymousHeader";
-import {authenticate, setEnvironment} from "jai-sdk";
+import {setEnvironment} from "jai-sdk";
 import OperationsForm from "./children/OperationsForm";
 import SimilarById from "./children/panels/SimilarById";
 import Recommendation from "./children/panels/Recommendation";
@@ -45,11 +45,7 @@ export default class App extends React.Component<AppProps> {
 
     setJaiKeysFromState = () => {
 
-        const {apiKey, environmentName} = this.state;
-
-        if (apiKey) {
-            authenticate(apiKey);
-        }
+        const {environmentName} = this.state;
 
         if (environmentName) {
             setEnvironment(environmentName);
@@ -66,7 +62,6 @@ export default class App extends React.Component<AppProps> {
             apiKey
         }, () => {
             this.storeState();
-            this.setJaiKeysFromState();
         });
     };
 
@@ -85,7 +80,7 @@ export default class App extends React.Component<AppProps> {
     };
 
     isAnonymousUser = () => {
-        return !this.isAuthenticated();
+        return !this.isApiKeySet();
     };
 
     isApiKeySet = () => {
@@ -124,7 +119,7 @@ export default class App extends React.Component<AppProps> {
                         <AnonymousHeader></AnonymousHeader>
                     )}
 
-                    {this.isAuthenticated() && (
+                    {!this.isAnonymousUser() && (
                         <AuthenticatedHeader onLogoff={() => this.logoff()}></AuthenticatedHeader>
                     )}
 

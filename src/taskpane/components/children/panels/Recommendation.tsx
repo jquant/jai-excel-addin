@@ -226,7 +226,7 @@ function Recommendation() {
         }
 
         if (selectedQueryType == QueryKeys.ALookalike || selectedQueryType == QueryKeys.BLookalike) {
-            const header = [`source "${selectedParent1}" id`, `similar "${selectedParent2}" id`, "distance"]
+            const header = [`source "${selectedParent1}" id`, `similar "${selectedParent1}" id`, "distance"]
             output.push(header);
 
             if (!result.similarity) {
