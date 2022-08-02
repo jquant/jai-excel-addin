@@ -5,6 +5,7 @@ import {authenticate, getDatabaseInfo, predict, setEnvironment} from "jai-sdk";
 import {DatabaseInfo} from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import {AuthenticationContext} from "../../../../hoc/AuthenticationContext";
 import {extractCollectionRange, implementNumberedRangeOnSelection} from "../../../../services/excel-range-filtering";
+import Puff from "react-loading-icons/dist/esm/components/puff";
 
 function Prediction() {
 
@@ -15,12 +16,12 @@ function Prediction() {
     const [databaseInfo, setDatabaseInfo] = useState([]);
 
     const [selectedCollection, setSelectedCollection] = useState("");
-    const [selectedTopK, setSelectedTopK] = useState(5);
+    const [loading, setLoading] = useState(false);
 
-    const [selectedInputRange, setSelectedInputRange] = useState("Sheet1!E1:F2");
-    const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("Sheet1");
+    const [selectedInputRange, setSelectedInputRange] = useState("");
+    const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("");
 
-    const [selectedOutputRange, setSelectedOutputRange] = useState("Sheet1!A1");
+    const [selectedOutputRange, setSelectedOutputRange] = useState("");
 
     useEffect(() => {
 
@@ -105,11 +106,24 @@ function Prediction() {
         return selectedOutputRange && selectedInputRange;
     };
 
-    interface criteria {
-        [name: string]: string
-    }
+
+    const sourceQueryLabel = () => {
+        if (databaseInfo.length == 0)
+            return (
+                <div>
+                    Please wait, loading...<Puff className={"label-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
+
+        return (
+            <div>
+                Select a model
+            </div>
+        );
+    };
 
     const run = async () => {
+        setLoading(true);
         setCollectionError("");
 
         await Excel.run(async (context) => {
@@ -135,7 +149,7 @@ function Prediction() {
 
                 const result = await predict(selectedCollection, array);
                 debugger
-                if (!result.recommendation) {
+                if (!result) {
                     return;
                 }
                 const output = [];
@@ -143,11 +157,10 @@ function Prediction() {
                 output.push(header);
 
                 for (const {query_id, results} of result.similarity) {
-                    const {id: sourceId} = results[0];
                     for (let i = 1; i < results.length; i++) {
                         const {id, distance} = results[i];
 
-                        output.push([sourceId, id, distance]);
+                        output.push([query_id, id, distance]);
                     }
                 }
 
@@ -158,8 +171,25 @@ function Prediction() {
             } catch (e) {
                 console.error(e);
                 setCollectionError("Error getting output results.")
+            } finally {
+                setLoading(false);
             }
         });
+    };
+
+    const runLabel = () => {
+        if (loading)
+            return (
+                <div>
+                    Loading <Puff className={"button-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
+
+        return (
+            <div>
+                Predict
+            </div>
+        );
     };
 
     return (
@@ -170,7 +200,7 @@ function Prediction() {
                         <CFormSelect
                             onChange={e => setSelectedCollection(e.target.value)}
                             options={collectionItems()}
-                            label={databaseInfo.length == 0 ? "Please wait, loading..." : "Choose a model"}
+                            label={sourceQueryLabel()}
                         />
                         {apiError && <div className={"error-message"}>{apiError}</div>}
                     </CCol>
@@ -179,7 +209,7 @@ function Prediction() {
                 {collectionSelected() && (
                     <Fragment>
                         <CRow>
-                            <CCol xs={{span: 8}} sm={{span: 10}}>
+                            <CCol xs={{span: 10}} sm={{span: 10}}>
                                 <CFormInput
                                     required
                                     className={"mb-1"}
@@ -187,7 +217,7 @@ function Prediction() {
                                     value={selectedInputRange}
                                 />
                             </CCol>
-                            <CCol xs={{span: 10}} sm={{span: 2}} className="d-flex flex-column">
+                            <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
                                 <CButton className="lock-button" color="dark" onClick={() => lockInputRange()}>
                                     Lock
                                 </CButton>
@@ -211,8 +241,9 @@ function Prediction() {
                         </CRow>
                         {collectionError && <div className={"error-message"}>{collectionError}</div>}
                         <CCol md={12}>
-                            <CButton color="success" disabled={!validToRunReport()} onClick={() => run()}>
-                                Predict
+                            <CButton className={"mt-10"} color="success" disabled={!validToRunReport()}
+                                     onClick={() => run()}>
+                                {runLabel()}
                             </CButton>
                         </CCol>
 

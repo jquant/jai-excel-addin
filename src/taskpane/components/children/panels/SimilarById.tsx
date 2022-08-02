@@ -6,6 +6,7 @@ import {DatabaseInfo} from "jai-sdk/dist/tsc/collection-management/database-info
 import {AuthenticationContext} from "../../../../hoc/AuthenticationContext";
 import {topKOptions} from "../../../../constants/listing/topk";
 import {extractCollectionRange, implementNumberedRangeOnSelection} from "../../../../services/excel-range-filtering";
+import Puff from "react-loading-icons/dist/esm/components/puff";
 
 function SimilarById() {
 
@@ -14,6 +15,7 @@ function SimilarById() {
     const [apiError, setApiError] = useState("");
     const [collectionError, setCollectionError] = useState("");
     const [databaseInfo, setDatabaseInfo] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const [selectedCollection, setSelectedCollection] = useState("");
     const [selectedTopK, setSelectedTopK] = useState(5);
@@ -107,6 +109,7 @@ function SimilarById() {
     };
 
     const run = async () => {
+        setLoading(true);
         setCollectionError("");
 
         await Excel.run(async (context) => {
@@ -125,15 +128,14 @@ function SimilarById() {
                     .map(x => Number(x))
                     .filter(x => !isNaN(x) && x > 0);
 
-                debugger
                 const result = await similaritySearchById(selectedCollection, parsedIds
                     , selectedTopK + 1);
 
-                if (!result.recommendation) {
+                if (!result.similarity) {
                     return;
                 }
                 const output = [];
-                const header = [`source "${selectedCollection}" id`, `similar id`, "distance"]
+                const header = [`source "${selectedCollection}" id`, `similar "${selectedCollection}" id`, "distance"]
                 output.push(header);
 
                 for (const {query_id, results} of result.similarity) {
@@ -151,24 +153,56 @@ function SimilarById() {
             } catch (e) {
                 console.error(e);
                 setCollectionError("Error getting output results.")
+            } finally {
+                setLoading(false);
             }
         });
+    };
+
+    const sourceQueryLabel = () => {
+        if (databaseInfo.length == 0)
+            return (
+                <div>
+                    Please wait, loading...<Puff className={"label-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
+
+        return (
+            <div>
+                Select a model
+            </div>
+        );
+    };
+
+    const runLabel = () => {
+        if (loading)
+            return (
+                <div>
+                    Loading <Puff className={"button-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
+
+        return (
+            <div>
+                Find Similar
+            </div>
+        );
     };
 
     return (
         <div>
             <CForm className={"p-3"} onSubmit={handleSubmit}>
                 <CRow>
-                    <CCol xs={{span: 8}} sm={{span: 10}}>
+                    <CCol xs={{span: 10}} sm={{span: 10}}>
                         <CFormSelect
                             onChange={e => setSelectedCollection(e.target.value)}
                             options={collectionItems()}
-                            label={databaseInfo.length == 0 ? "Please wait, loading..." : "Choose a model"}
+                            label={sourceQueryLabel()}
                         />
                         {apiError && <div className={"error-message"}>{apiError}</div>}
                     </CCol>
 
-                    <CCol xs={{span: 4}} sm={{span: 2}}>
+                    <CCol xs={{span: 2}} sm={{span: 2}}>
                         <CFormSelect
                             onChange={e => setSelectedTopK(parseInt(e.target.value))}
                             options={topKOptions.map(x => x.toString())}
@@ -180,7 +214,7 @@ function SimilarById() {
                 {collectionSelected() && (
                     <Fragment>
                         <CRow>
-                            <CCol xs={{span: 8}} sm={{span: 10}}>
+                            <CCol xs={{span: 10}} sm={{span: 10}}>
                                 <CFormInput
                                     required
                                     className={"mb-1"}
@@ -188,7 +222,7 @@ function SimilarById() {
                                     value={selectedInputRange}
                                 />
                             </CCol>
-                            <CCol xs={{span: 10}} sm={{span: 2}} className="d-flex flex-column">
+                            <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
                                 <CButton className="lock-button" color="dark" onClick={() => lockInputRange()}>
                                     Lock
                                 </CButton>
@@ -212,8 +246,10 @@ function SimilarById() {
                         </CRow>
                         {collectionError && <div className={"error-message"}>{collectionError}</div>}
                         <CCol md={12}>
-                            <CButton color="success" disabled={!validToRunReport()} onClick={() => run()}>
-                                Find Similar
+                            <CButton className={"mt-10"} color="success" disabled={!validToRunReport()}
+                                     onClick={() => run()}>
+
+                                {runLabel()}
                             </CButton>
                         </CCol>
 

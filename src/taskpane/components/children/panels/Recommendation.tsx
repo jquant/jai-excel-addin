@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Fragment, useContext, useEffect, useState} from "react";
 
-import {CButton, CCol, CForm, CFormInput, CFormSelect, CRow} from "@coreui/react";
+import {CButton, CCol, CForm, CFormInput, CFormLabel, CFormSelect, CRow} from "@coreui/react";
 
 import {authenticate, getDatabaseInfo, recommendationById, setEnvironment, similaritySearchById} from "jai-sdk";
 
@@ -10,6 +10,7 @@ import {AuthenticationContext} from "../../../../hoc/AuthenticationContext";
 import {topKOptions} from "../../../../constants/listing/topk";
 import {extractCollectionRange, implementNumberedRangeOnSelection,} from "../../../../services/excel-range-filtering";
 import {QueryKeys, queryTypesList} from "../../../../operations/querytypes";
+import Puff from "react-loading-icons/dist/esm/components/puff";
 
 
 function Recommendation() {
@@ -19,6 +20,7 @@ function Recommendation() {
     const [collectionError, setCollectionError] = useState("");
     const [databaseInfo, setDatabaseInfo] = useState([]);
     const [queryTypeOptions, setQueryTypeOptions] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const [collectionOriginalParent1, setCollectionOriginalParent1] = useState("");
     const [collectionOriginalParent2, setCollectionOriginalParent2] = useState("");
@@ -126,10 +128,19 @@ function Recommendation() {
     const collectionSelected = () => !!selectedCollection;
     const queryTypeSelected = () => !!selectedQueryType;
 
-    const sourceTableLabel = () => {
-        if (databaseInfo.length == 0) return "Please wait, loading...";
+    const recSysLabel = () => {
+        if (databaseInfo.length == 0)
+            return (
+                <div>
+                    Please wait, loading...<Puff className={"label-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
 
-        return "Select the RecSys";
+        return (
+            <div>
+                Select the RecSys
+            </div>
+        );
     };
 
     const sourceQueryTypeLabel = () => {
@@ -152,6 +163,7 @@ function Recommendation() {
 
 
     const run = async () => {
+        setLoading(true);
         setCollectionError("");
 
         await Excel.run(async (context) => {
@@ -183,6 +195,8 @@ function Recommendation() {
             } catch (e) {
                 console.error(e);
                 setCollectionError("Error getting output results.")
+            } finally {
+                setLoading(false);
             }
         });
     };
@@ -244,6 +258,21 @@ function Recommendation() {
         return output;
     }
 
+    const runLabel = () => {
+        if (loading)
+            return (
+                <div>
+                    Loading <Puff className={"button-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
+
+        return (
+            <div>
+                Recommend
+            </div>
+        );
+    };
+
     const recSysChanged = (value) => {
         setSelectedCollection(value);
         const selectedRecSys = databaseInfo.find(x => x.db_name == value);
@@ -268,10 +297,10 @@ function Recommendation() {
         <CForm className={"p-3"} onSubmit={handleSubmit}>
             <CRow>
                 <CCol xs={{span: 8}} sm={{span: 10}}>
+                    <CFormLabel className={"form-label"}>{recSysLabel()}</CFormLabel>
                     <CFormSelect
                         onChange={(e) => recSysChanged(e.target.value)}
                         options={recSysCollectionItems()}
-                        label={sourceTableLabel()}
                     />
                     {apiError && <div className={"error-message"}>{apiError}</div>}
                 </CCol>
@@ -332,8 +361,9 @@ function Recommendation() {
                     {collectionError && <div className={"error-message"}>{collectionError}</div>}
                     <CRow>
                         <CCol md={12}>
-                            <CButton color="success" disabled={!validToRunReport()} onClick={() => run()}>
-                                Recommend
+                            <CButton className={"mt-10"} color="success" disabled={!validToRunReport()}
+                                     onClick={() => run()}>
+                                {runLabel()}
                             </CButton>
                         </CCol>
                     </CRow>

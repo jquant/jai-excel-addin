@@ -1,8 +1,9 @@
 import * as React from "react";
 import {useContext, useEffect, useState} from "react";
 import {CButton, CCol, CForm, CFormSelect} from "@coreui/react";
-import {getEnvironments} from "jai-sdk";
+import {authenticate, getEnvironments} from "jai-sdk";
 import {AuthenticationContext} from "../../../hoc/AuthenticationContext";
+import Puff from "react-loading-icons/dist/esm/components/puff";
 
 function EnvironmentSelectionForm(props) {
     const [apiError, setApiError] = useState("");
@@ -10,18 +11,23 @@ function EnvironmentSelectionForm(props) {
     const [validated, setValidated] = useState(false);
     const [environments, setEnvironments] = useState([]);
 
+    const [loading, setLoading] = useState(false);
+
     const {apiKey} = useContext(AuthenticationContext);
 
     useEffect(() => {
+        setLoading(true);
+        authenticate(apiKey);
         getEnvironments().then((data) => {
                 console.log("environment loading...");
                 setEnvironments(data);
                 if (data) {
                     setSelectedEnvironment(data[0].name);
                 }
+                setLoading(false);
             },
             (e) => {
-                console.log("error", JSON.stringify(e))
+                setLoading(false);
                 if (e.message.includes("401")) {
                     setApiError("Your Api Key is invalid. Please logoff and try again.")
                     return;
@@ -55,6 +61,21 @@ function EnvironmentSelectionForm(props) {
         setSelectedEnvironment(e.target.value);
     };
 
+    const environmentSelectionLabel = () => {
+        if (loading)
+            return (
+                <div>
+                    Please wait, loading...<Puff className={"label-spin-loading"} stroke="#f95f18"/>
+                </div>
+            );
+
+        return (
+            <div>
+                Select an Environment
+            </div>
+        );
+    };
+
     return (
         <div>
             <CForm className={"row p-3"} noValidate validated={validated} onSubmit={handleSubmit}>
@@ -62,7 +83,7 @@ function EnvironmentSelectionForm(props) {
                     {environments && (
                         <CFormSelect
                             options={environments.map(({key, name}) => ({value: key || name, label: name}))}
-                            label="Select an Environment"
+                            label={environmentSelectionLabel()}
                             onChange={onSelectChange}
                         />
                     )}

@@ -90,3 +90,20 @@ b {
     margin-bottom: 5px;
     width: 100%;
 }
+
+.label-spin-loading {
+    position: absolute;
+    margin-top: -4px;
+    width: 30px;
+    height: 30px;
+}
+
+.button-spin-loading {
+    margin-top: -4px;
+    width: 30px;
+    height: 30px;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
