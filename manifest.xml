@@ -11,10 +11,7 @@
     <Description DefaultValue="An Add-in to access the JAI Api."/>
     <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
     <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
-    <SupportUrl DefaultValue="https://getjai.com/"/>
-    <AppDomains>
-        <AppDomain>https://www.contoso.com</AppDomain>
-    </AppDomains>
+    <SupportUrl DefaultValue="https://jai-sdk.readthedocs.io/en/latest/"/>
     <Hosts>
         <Host Name="Workbook"/>
     </Hosts>

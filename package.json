@@ -1,6 +1,6 @@
 {
   "name": "office-addin-taskpane-react",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/OfficeDev/Office-Addin-TaskPane-React.git"
@@ -25,7 +25,7 @@
     "validate": "office-addin-manifest validate manifest.xml",
     "watch": "webpack --mode development --watch",
     "postinstall": "sh post-script-mac.sh",
-    "publish": "surge dist jai-excel.surge.sh"
+    "publish-addin": "surge dist jai-excel.surge.sh"
   },
   "dependencies": {
     "@coreui/coreui": "^4.1.5",
