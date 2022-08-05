@@ -18,23 +18,27 @@ function EnvironmentSelectionForm(props) {
     useEffect(() => {
         setLoading(true);
         authenticate(apiKey);
-        getEnvironments().then((data) => {
-                console.log("environment loading...");
-                setEnvironments(data);
-                if (data) {
-                    setSelectedEnvironment(data[0].name);
+        try {
+            getEnvironments().then((data) => {
+                    setEnvironments(data);
+                    if (data) {
+                        setSelectedEnvironment(data[0].name);
+                    }
+                },
+                (e) => {
+                    debugger
+                    let json = JSON.stringify(e);
+                    let parsed = JSON.parse(json);
+                    if (parsed.status == 401) {
+                        setApiError("Your Api Key is invalid. Please logoff and try again.")
+                        return;
+                    }
+                    setApiError(e.message)
                 }
-                setLoading(false);
-            },
-            (e) => {
-                setLoading(false);
-                if (e.message.includes("401")) {
-                    setApiError("Your Api Key is invalid. Please logoff and try again.")
-                    return;
-                }
-                setApiError(e.message)
-            }
-        );
+            );
+        } finally {
+            setLoading(false);
+        }
     }, [apiKey]);
 
     const handleSubmit = (event) => {
@@ -95,7 +99,7 @@ function EnvironmentSelectionForm(props) {
                     <CButton
                         disabled={!environments}
                         className="ms-welcome__action"
-                        color="dark"
+
                         variant="outline"
                         type={"submit"}
                     >

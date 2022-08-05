@@ -17,9 +17,7 @@ ul {
 }
 
 .ms-welcome__header {
-    padding: 20px;
-    padding-bottom: 10px;
-    padding-top: 20px;
+    padding: 20px 20px 10px;
     display: -webkit-flex;
     display: flex;
     -webkit-flex-direction: column;
@@ -86,9 +84,9 @@ b {
 }
 
 .lock-button {
-    margin: auto;
-    margin-bottom: 5px;
+    margin: auto auto 5px;
     width: 100%;
+    background-color: #2d4670;
 }
 
 .label-spin-loading {
@@ -106,4 +104,8 @@ b {
 
 .mt-10 {
     margin-top: 10px;
+}
+
+.run-button {
+    background-color: #f8541c !important;
 }

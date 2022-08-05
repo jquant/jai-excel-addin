@@ -178,7 +178,7 @@ function SimilarById() {
         if (loading)
             return (
                 <div>
-                    Loading <Puff className={"button-spin-loading"} stroke="#f95f18"/>
+                    Loading <Puff className={"button-spin-loading"} stroke="#ffffff"/>
                 </div>
             );
 
@@ -223,7 +223,7 @@ function SimilarById() {
                                 />
                             </CCol>
                             <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
-                                <CButton className="lock-button" color="dark" onClick={() => lockInputRange()}>
+                                <CButton className="lock-button" onClick={() => lockInputRange()}>
                                     Lock
                                 </CButton>
                             </CCol>
@@ -239,14 +239,14 @@ function SimilarById() {
                                 />
                             </CCol>
                             <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
-                                <CButton className="lock-button" color="dark" onClick={() => lockOutputRange()}>
+                                <CButton className="lock-button" onClick={() => lockOutputRange()}>
                                     Lock
                                 </CButton>
                             </CCol>
                         </CRow>
                         {collectionError && <div className={"error-message"}>{collectionError}</div>}
                         <CCol md={12}>
-                            <CButton className={"mt-10"} color="success" disabled={!validToRunReport()}
+                            <CButton className={"mt-10 run-button w-100"} disabled={!validToRunReport()}
                                      onClick={() => run()}>
 
                                 {runLabel()}

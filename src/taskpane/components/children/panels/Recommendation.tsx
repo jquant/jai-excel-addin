@@ -155,11 +155,17 @@ function Recommendation() {
         )
     };
 
-    const outputRangeSelectionText = () => (
-        <Fragment>
-            Output range for <strong>'{selectedParent2}'</strong>
-        </Fragment>
-    );
+    const outputRangeSelectionText = () => {
+        let selectedOutputParent = selectedParent2;
+        if (selectedQueryType == QueryKeys.ALookalike || selectedQueryType == QueryKeys.BLookalike) {
+            selectedOutputParent = selectedParent1;
+        }
+        return (
+            <Fragment>
+                Output range for <strong>'{selectedOutputParent}'</strong>
+            </Fragment>
+        );
+    }
 
 
     const run = async () => {
@@ -262,7 +268,7 @@ function Recommendation() {
         if (loading)
             return (
                 <div>
-                    Loading <Puff className={"button-spin-loading"} stroke="#f95f18"/>
+                    Loading <Puff className={"button-spin-loading"} stroke="#ffffff"/>
                 </div>
             );
 
@@ -337,7 +343,7 @@ function Recommendation() {
                                         value={selectedInputRange}/>
                         </CCol>
                         <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
-                            <CButton className="lock-button" color="dark" onClick={() => lockInputRange()}>
+                            <CButton className="lock-button" onClick={() => lockInputRange()}>
                                 Lock
                             </CButton>
                         </CCol>
@@ -353,7 +359,7 @@ function Recommendation() {
                             />
                         </CCol>
                         <CCol xs={{span: 2}} sm={{span: 2}} className="d-flex flex-column">
-                            <CButton className="lock-button" color="dark" onClick={() => lockOutputRange()}>
+                            <CButton className="lock-button" onClick={() => lockOutputRange()}>
                                 Lock
                             </CButton>
                         </CCol>
@@ -361,7 +367,7 @@ function Recommendation() {
                     {collectionError && <div className={"error-message"}>{collectionError}</div>}
                     <CRow>
                         <CCol md={12}>
-                            <CButton className={"mt-10"} color="success" disabled={!validToRunReport()}
+                            <CButton className={"mt-10 run-button w-100"} disabled={!validToRunReport()}
                                      onClick={() => run()}>
                                 {runLabel()}
                             </CButton>

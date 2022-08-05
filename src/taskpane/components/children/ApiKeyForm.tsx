@@ -59,7 +59,7 @@ function ApiKeyForm(props) {
                     {apiError && <div className={"error-message"}>{apiError}</div>}
                 </CCol>
                 <CCol md={12}>
-                    <CButton className="ms-welcome__action" color="dark" variant="outline" type={"submit"}>
+                    <CButton className="ms-welcome__action" variant="outline" type={"submit"}>
                         Access
                     </CButton>
                 </CCol>
