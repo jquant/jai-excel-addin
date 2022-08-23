@@ -1,11 +1,23 @@
 import * as React from "react";
 import {Fragment, useContext, useEffect, useState} from "react";
-import {CButton, CCol, CForm, CFormInput, CFormSelect, CRow} from "@coreui/react";
-import {authenticate, getDatabaseInfo, predict, setEnvironment} from "jai-sdk";
+import {
+    CButton,
+    CCol,
+    CForm,
+    CFormCheck,
+    CFormInput,
+    CFormLabel,
+    CFormSelect,
+    CListGroup,
+    CListGroupItem,
+    CRow
+} from "@coreui/react";
+import {authenticate, getDatabaseDescription, getDatabaseInfo, getIds, predict, setEnvironment} from "jai-sdk";
 import {DatabaseInfo} from "jai-sdk/dist/tsc/collection-management/database-info/types";
 import {AuthenticationContext} from "../../../../hoc/AuthenticationContext";
 import {extractCollectionRange, implementNumberedRangeOnSelection} from "../../../../services/excel-range-filtering";
 import Puff from "react-loading-icons/dist/esm/components/puff";
+import {RequiredColumn} from "../../../../interfaces/requiredColumn";
 
 function Prediction() {
 
@@ -16,12 +28,15 @@ function Prediction() {
     const [databaseInfo, setDatabaseInfo] = useState([]);
 
     const [selectedCollection, setSelectedCollection] = useState("");
+    const [requiredColumns, setRequiredColumns] = useState([]);
+
     const [loading, setLoading] = useState(false);
 
     const [selectedInputRange, setSelectedInputRange] = useState("");
     const [selectedInputWorksheet, setSelectedInputWorksheet] = useState("");
 
     const [selectedOutputRange, setSelectedOutputRange] = useState("");
+    const [validInputRange, setValidInputRange] = useState(false);
 
     useEffect(() => {
 
@@ -68,6 +83,7 @@ function Prediction() {
             const range = context.workbook.getSelectedRange();
 
             range.load(["address", "worksheet"]);
+            range.load("values");
 
             await context.sync();
 
@@ -78,10 +94,39 @@ function Prediction() {
 
                 setSelectedInputRange(filtered);
                 setSelectedInputWorksheet(range.worksheet.name);
+
+                const {values} = range;
+
+                const headerColumns = values[0];
+                const requiredColumnsList = [...requiredColumns];
+
+                for (let i = 0; i < requiredColumns.length; i++) {
+                    const column = requiredColumnsList[i];
+                    const checkbox = document.getElementById(column.name);
+
+                    if (headerColumns.find(x => x == column.name)) {
+                        checkbox.setAttribute('checked', 'checked');
+                        column.valid = true;
+                    } else {
+                        checkbox.removeAttribute("checked");
+                        column.valid = false;
+                    }
+                }
+
+                validateRequiredColumns(requiredColumnsList);
+
             } catch (e) {
                 console.log(e);
             }
         });
+    };
+
+    const validateRequiredColumns = (requiredColumnsList) => {
+        if (requiredColumnsList.find(x => !x.valid)) {
+            setValidInputRange(false);
+            return
+        }
+        setValidInputRange(true);
     };
 
     const lockOutputRange = async () => {
@@ -103,7 +148,7 @@ function Prediction() {
     };
 
     const validToRunReport = () => {
-        return selectedOutputRange && selectedInputRange;
+        return selectedOutputRange && selectedInputRange && validInputRange;
     };
 
 
@@ -129,7 +174,6 @@ function Prediction() {
         await Excel.run(async (context) => {
 
             try {
-
                 const workbook = context.workbook.worksheets.getItem(selectedInputWorksheet);
 
                 const range = workbook.getRange(selectedInputRange);
@@ -138,17 +182,20 @@ function Prediction() {
 
                 const {values} = range;
 
-                let map: { [key: string]: boolean } = {};
+                const headerColumns = values[0].filter(x => x);
+                let array = [];
 
-                for (let i = 0; i < values.length; i++) {
-                    const x = values[i];
-                    map[`"${x[0]}"`] = x[1];
+                for (let i = 1; i < values.length; i++) {
+                    let row = values[i];
+                    let map: { [key: string]: string } = {};
+
+                    for (let j = 0; j < headerColumns.length; j++) {
+                        let columnHeader = headerColumns[j];
+                        map[`"${columnHeader}"`] = row[j];
+                    }
+                    array.push(map);
                 }
-
-                let array = [{...map}];
-                console.log(array)
                 const result = await predict(selectedCollection, array);
-                debugger
                 if (!result) {
                     return;
                 }
@@ -192,13 +239,58 @@ function Prediction() {
         );
     };
 
+    const collectionChanged = async (value) => {
+        try {
+            setSelectedCollection(value);
+            const selectedRecSys = databaseInfo.find(x => x.db_name == value);
+            let databaseDescription = await getDatabaseDescription(selectedRecSys.db_name);
+
+            let features: RequiredColumn[] = databaseDescription.features.map(x => {
+                let column: RequiredColumn = {
+                    name: x.name,
+                    valid: false
+                }
+                return column;
+            });
+
+            setRequiredColumns([...features]);
+
+            let ids = await getIds(selectedRecSys.db_name, "complete");
+            console.log(ids)
+
+        } catch (e) {
+            setApiError(e.message)
+        }
+    };
+
+    const requiredColumnsList = () => {
+        if (!requiredColumns)
+            return (
+                <div>
+                    Loading <Puff className={"button-spin-loading"} stroke="#ffffff"/>
+                </div>
+            );
+
+        return (
+            <CListGroup>
+                {requiredColumns.map(x => {
+                    return (
+                        <Fragment>
+                            <CListGroupItem><CFormCheck id={x.name} disabled></CFormCheck> {x.name}</CListGroupItem>
+                        </Fragment>
+                    )
+                })}
+            </CListGroup>
+        );
+    };
+
     return (
         <div>
             <CForm className={"p-3"} onSubmit={handleSubmit}>
                 <CRow>
                     <CCol xs={{span: 12}} sm={{span: 12}}>
                         <CFormSelect
-                            onChange={e => setSelectedCollection(e.target.value)}
+                            onChange={e => collectionChanged(e.target.value)}
                             options={collectionItems()}
                             label={sourceQueryLabel()}
                         />
@@ -208,6 +300,13 @@ function Prediction() {
 
                 {collectionSelected() && (
                     <Fragment>
+                        <CRow>
+                            <CCol xs={{span: 12}} sm={{span: 12}}>
+                                <CFormLabel>Required columns</CFormLabel>
+                                {requiredColumnsList()}
+                            </CCol>
+                        </CRow>
+
                         <CRow>
                             <CCol xs={{span: 10}} sm={{span: 10}}>
                                 <CFormInput
