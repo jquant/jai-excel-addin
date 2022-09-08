@@ -83,7 +83,6 @@ function Prediction() {
             const range = context.workbook.getSelectedRange();
 
             range.load(["address", "worksheet"]);
-            range.load("values");
 
             await context.sync();
 
@@ -95,7 +94,13 @@ function Prediction() {
                 setSelectedInputRange(filtered);
                 setSelectedInputWorksheet(range.worksheet.name);
 
-                const {values} = range;
+                const workbook = context.workbook.worksheets.getItem(range.worksheet.name);
+
+                const filteredRange = workbook.getRange(filtered);
+                filteredRange.load("values");
+                await context.sync();
+
+                const {values} = filteredRange;
 
                 const headerColumns = values[0];
                 const requiredColumnsList = [...requiredColumns];
@@ -183,7 +188,7 @@ function Prediction() {
                 const {values} = range;
 
                 const headerColumns = values[0].filter(x => x);
-                let array = [];
+                let data = [];
 
                 for (let i = 1; i < values.length; i++) {
                     let row = values[i];
@@ -191,24 +196,40 @@ function Prediction() {
 
                     for (let j = 0; j < headerColumns.length; j++) {
                         let columnHeader = headerColumns[j];
-                        map[`"${columnHeader}"`] = row[j];
+                        map[`${columnHeader}`] = row[j];
                     }
-                    array.push(map);
+                    data.push(map);
                 }
-                const result = await predict(selectedCollection, array);
+
+                console.log("data", JSON.stringify(data))
+
+                const result = await predict(selectedCollection, data, true);
                 if (!result) {
                     return;
                 }
+
+                console.log("result", result)
+
                 const output = [];
-                const header = [`source "${selectedCollection}" id`, `predict`, "distance"]
+                const header = [`source "${selectedCollection}" id`, `prediction`, `probability`]
                 output.push(header);
 
-                for (const {query_id, results} of result.similarity) {
-                    for (let i = 1; i < results.length; i++) {
-                        const {id, distance} = results[i];
+                for (let j = 0; j < result.length; j++) {
+                    const item = result[j];
 
-                        output.push([query_id, id, distance]);
-                    }
+                    let itemValues: {
+                        key: number,
+                        value: number
+                    }[] = Object.values(item.predict).filter(x => typeof x === 'number').map((x, i) => {
+                        return {key: i, value: x as number}
+                    });
+
+                    const max = itemValues.reduce((prev, current) => {
+                            return current.value > prev.value ? current : prev;
+                        }
+                    );
+
+                    output.push([item.id, max.key, max.value]);
                 }
 
                 let collectionRange = extractCollectionRange(selectedOutputRange, header.length, output.length);
@@ -245,19 +266,19 @@ function Prediction() {
             const selectedRecSys = databaseInfo.find(x => x.db_name == value);
             let databaseDescription = await getDatabaseDescription(selectedRecSys.db_name);
 
-            let features: RequiredColumn[] = databaseDescription.features.map(x => {
-                let column: RequiredColumn = {
-                    name: x.name,
-                    valid: false
-                }
-                return column;
-            });
+            let features: RequiredColumn[] = databaseDescription.features.filter(x => x['task'] === undefined)
+                .map(x => {
+                    let column: RequiredColumn = {
+                        name: x.name,
+                        valid: false
+                    }
+                    return column;
+                });
 
             setRequiredColumns([...features]);
+            setValidInputRange(false)
 
             let ids = await getIds(selectedRecSys.db_name, "complete");
-            console.log(ids)
-
         } catch (e) {
             setApiError(e.message)
         }
@@ -276,7 +297,8 @@ function Prediction() {
                 {requiredColumns.map(x => {
                     return (
                         <Fragment>
-                            <CListGroupItem><CFormCheck id={x.name} disabled></CFormCheck> {x.name}</CListGroupItem>
+                            <CListGroupItem><CFormCheck id={x.name} disabled></CFormCheck> {x.name}
+                            </CListGroupItem>
                         </Fragment>
                     )
                 })}
