@@ -4959,10 +4959,10 @@ isstream@~0.1.2:
   resolved "https://registry.npmjs.org/isstream/-/isstream-0.1.2.tgz"
   integrity sha512-Yljz7ffyPbrLpLngrMtZ7NduUgVvi6wG9RJ9IUcyCd59YQ911PBJphODUcbOVbqYfxe1wuYf/LJ8PauMRwsM/g==
 
-jai-sdk@^0.59.0:
-  version "0.59.0"
-  resolved "https://registry.yarnpkg.com/jai-sdk/-/jai-sdk-0.59.0.tgz#b7c284f7e15244ec6d9485f60b69331b80e4b60c"
-  integrity sha512-Rbis5WK+9tiz5HMmKZYVTUdPyviHj1/gXjDd2x3b91mf3PZAO7PY9wYT+/9gQI//WNdj0dLcD4GkhR7KmP2owQ==
+jai-sdk@^0.60.0:
+  version "0.60.0"
+  resolved "https://registry.yarnpkg.com/jai-sdk/-/jai-sdk-0.60.0.tgz#da3f09f8984e8db8cb73fe110dae2ac0d1d4f1bd"
+  integrity sha512-+MsIuYAVJTabSRhukmbhSGTNmCKKrtn0MtITif885KMxL7ywwaIcXh/au43/caNSXeb8kHfgeYoccIIJ0G8NDQ==
   dependencies:
     "@types/yargs" "^17.0.8"
     axios "^0.24.0"
