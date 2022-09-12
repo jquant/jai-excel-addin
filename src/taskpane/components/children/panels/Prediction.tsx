@@ -293,16 +293,18 @@ function Prediction() {
             );
 
         return (
-            <CListGroup>
-                {requiredColumns.map(x => {
-                    return (
-                        <Fragment>
-                            <CListGroupItem><CFormCheck id={x.name} disabled></CFormCheck> {x.name}
-                            </CListGroupItem>
-                        </Fragment>
-                    )
-                })}
-            </CListGroup>
+            <div style={{maxHeight: 200, overflow: "scroll"}}>
+                <CListGroup>
+                    {requiredColumns.map(x => {
+                        return (
+                            <Fragment>
+                                <CListGroupItem><CFormCheck id={x.name} disabled></CFormCheck> {x.name}
+                                </CListGroupItem>
+                            </Fragment>
+                        )
+                    })}
+                </CListGroup>
+            </div>
         );
     };
 
